@@ -1,0 +1,25 @@
+@model cesar.Features.Weather.Models.CreateWeatherForecastModel
+
+<h2>Add Weather Forecast</h2>
+
+<form asp-action="Create" method="post">
+    <div>
+        <label asp-for="Date"></label>
+        <input asp-for="Date" />
+        <span asp-validation-for="Date"></span>
+    </div>
+
+    <div>
+        <label asp-for="TemperatureC">Temperature (°C)</label>
+        <input asp-for="TemperatureC" />
+        <span asp-validation-for="TemperatureC"></span>
+    </div>
+
+    <div>
+        <label asp-for="Summary"></label>
+        <input asp-for="Summary" />
+        <span asp-validation-for="Summary"></span>
+    </div>
+
+    <button type="submit">Save</button>
+</form>

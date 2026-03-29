@@ -1,0 +1,33 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# NuGet
+*.nupkg
+packages/
+
+# Secrets & config overrides
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Client-side libraries (restored via libman.json)
+wwwroot/lib/
+
+# Tailwind output (generated, not source)
+wwwroot/css/site.css
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Rider / VS Code
+.idea/
+.vscode/

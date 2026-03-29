@@ -1,0 +1,21 @@
+{
+  "name": "cesar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "node ./node_modules/postcss-cli/index.js ./wwwroot/css/app.css -o ./wwwroot/css/site.css",
+    "watch:css": "node ./node_modules/postcss-cli/index.js ./wwwroot/css/app.css -o ./wwwroot/css/site.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^4.2.2"
+  }
+}

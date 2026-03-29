@@ -1,0 +1,33 @@
+@model IEnumerable<cesar.Features.Weather.Models.WeatherForecastViewModel>
+
+@{
+    var columns = new[] { "Date", "Temperature", "Summary", "Actions" };
+}
+
+<h2 class="text-2xl font-semibold mb-4">Weather Forecasts</h2>
+<a asp-action="Create" class="mb-4 inline-block">Add New Forecast</a>
+
+<table class="w-full border-collapse">
+    <thead>
+        <tr>
+            @foreach (var column in columns)
+            {
+                <th class="bg-[#efefef] border border-[#d0d0d0] px-4 py-2 text-left font-semibold">@column</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var forecast in Model)
+        {
+            <tr>
+                <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">@forecast.Date</td>
+                <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">@forecast.TemperatureDisplay</td>
+                <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">@forecast.Summary</td>
+                <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">
+                    <a asp-action="Edit" asp-route-id="@forecast.Id">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@forecast.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
