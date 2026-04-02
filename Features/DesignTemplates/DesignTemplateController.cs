@@ -191,7 +191,7 @@ public class DesignTemplateController : Controller
             .Select(l => new RawJsonOptionModel
             {
                 Id = l.Id,
-                Label = $"#{l.Id} — {l.SourceSystem} — {l.ExternalId}",
+                Label = $"#{l.Id} {l.SourceSystem} - {l.ExternalId}".Replace("_", " "),
                 RawJsonData = l.RawJsonData
             })
             .ToList();
