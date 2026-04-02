@@ -1,0 +1,127 @@
+@model cesar.Features.DesignTemplates.Models.CreateDesignTemplateModel
+@using System.Text.Json
+
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold">Create Design Template</h2>
+        <a asp-action="Index" class="text-sm text-neutral-500 hover:underline">← Back to list</a>
+    </div>
+
+    <form asp-action="Create" method="post" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="flex flex-col gap-6">
+            <div>
+                <label asp-for="Name" class="block text-sm font-medium mb-1">Name</label>
+                <input asp-for="Name" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" placeholder="e.g. SaaS_Cold_Email" />
+                <span asp-validation-for="Name" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="ContentType" class="block text-sm font-medium mb-1">Content Type</label>
+                <select asp-for="ContentType" asp-items="Html.GetEnumSelectList<cesar.Features.DesignTemplates.Entities.ContentType>()" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black"></select>
+                <span asp-validation-for="ContentType" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="PlaceholderSchema" class="block text-sm font-medium mb-1">Placeholder Schema (JSON)</label>
+                <textarea asp-for="PlaceholderSchema" rows="9" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black resize-y" placeholder='{"firstName":"Ada","offer":"20% discount"}'></textarea>
+                <span asp-validation-for="PlaceholderSchema" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="HtmlMarkup" class="block text-sm font-medium mb-1">HTML Markup</label>
+                <textarea asp-for="HtmlMarkup" rows="14" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black resize-y" placeholder="Use placeholders like {{firstName}} or {{offer}}"></textarea>
+                <span asp-validation-for="HtmlMarkup" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-6">
+            <div>
+                <label class="block text-sm font-medium mb-1">Use Raw Lead JSON</label>
+                <div class="flex gap-2">
+                    <select id="raw-json-select" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black">
+                        <option value="">Select lead JSON</option>
+                        @foreach (var option in Model.RawJsonOptions)
+                        {
+                            <option value="@option.Id">@option.Label</option>
+                        }
+                    </select>
+                    <button id="inject-json-btn" type="button" class="border border-[#d0d0d0] px-3 py-2 rounded text-sm hover:bg-neutral-100">Inject</button>
+                </div>
+            </div>
+
+            <div>
+                <label asp-for="PreviewRawJsonData" class="block text-sm font-medium mb-1">Preview Raw JSON</label>
+                <textarea asp-for="PreviewRawJsonData" rows="12" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black resize-y"></textarea>
+                <span asp-validation-for="PreviewRawJsonData" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <p class="text-sm text-neutral-500 mb-2">Injected values preview</p>
+                <div id="injected-preview" class="border border-[#d0d0d0] rounded bg-white p-4 min-h-[220px] overflow-auto"></div>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="submit" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">Save Template</button>
+                <button type="submit" formaction="@Url.Action("PreviewDraft", "DesignTemplate")" formmethod="post" formtarget="_blank" class="border border-[#d0d0d0] text-sm px-4 py-2 rounded hover:bg-neutral-100 transition">Preview Draft</button>
+            </div>
+
+            <p class="text-xs text-neutral-500">Preview uses <span class="font-mono">{{key}}</span> and <span class="font-mono">{{parent.child}}</span> placeholders.</p>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        (function () {
+            const payload = @Html.Raw(JsonSerializer.Serialize(Model.RawJsonOptions.ToDictionary(x => x.Id.ToString(), x => x.RawJsonData)));
+            const select = document.getElementById('raw-json-select');
+            const button = document.getElementById('inject-json-btn');
+            const target = document.getElementById('PreviewRawJsonData');
+            const markup = document.getElementById('HtmlMarkup');
+            const preview = document.getElementById('injected-preview');
+
+            function getCaseInsensitive(obj, key) {
+                if (!obj || typeof obj !== 'object') return undefined;
+                const exact = obj[key];
+                if (exact !== undefined) return exact;
+                const foundKey = Object.keys(obj).find(k => k.toLowerCase() === key.toLowerCase());
+                return foundKey ? obj[foundKey] : undefined;
+            }
+
+            function resolvePath(source, path) {
+                return path.split('.').reduce((acc, part) => getCaseInsensitive(acc, part), source);
+            }
+
+            function renderPreview() {
+                if (!preview || !markup || !target) return;
+
+                let data;
+                try {
+                    data = JSON.parse(target.value || '{}');
+                } catch {
+                    preview.textContent = 'Invalid JSON in Preview Raw JSON.';
+                    return;
+                }
+
+                const rendered = (markup.value || '').replace(/{{\s*([a-zA-Z0-9_.]+)\s*}}/g, function (match, path) {
+                    const value = resolvePath(data, path);
+                    return value === undefined || value === null ? match : String(value);
+                });
+
+                preview.innerHTML = rendered;
+            }
+
+            button.addEventListener('click', function () {
+                const key = select.value;
+                if (!key || !payload[key] || !target) return;
+                target.value = payload[key];
+                renderPreview();
+            });
+
+            target.addEventListener('input', renderPreview);
+            markup.addEventListener('input', renderPreview);
+            renderPreview();
+        })();
+    </script>
+}

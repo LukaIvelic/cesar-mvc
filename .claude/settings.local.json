@@ -3,7 +3,9 @@
     "allow": [
       "Bash(mkdir -p c:/Users/iveli/Desktop/cesar/lab-1)",
       "Bash(mkdir -p c:/Users/iveli/Desktop/cesar/claude)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(grep -v \"\\\\.cs:[0-9]*:.*\\(\\\\|{$\\\\|}\\\\|^\\\\s*$\")",
+      "Bash(dotnet ef:*)"
     ]
   }
 }

@@ -1,50 +1,62 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - cesar</title>
+    <title>@ViewData["Title"]</title>
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/cesar.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">cesar</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+<body class="bg-white text-neutral-900">
+    <header class="border-b border-[#d0d0d0] mb-6">
+        <nav class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a asp-controller="Home" asp-action="Index" class="text-sm font-semibold truncate max-w-xs">
+                AI Lead Processing
+            </a>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - cesar - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <ul class="hidden md:flex items-center gap-6 text-sm">
+                <li><a asp-controller="Home" asp-action="Index" class="text-neutral-600 hover:text-black transition">Home</a></li>
+                <li><a asp-controller="WeatherForecast" asp-action="Index" class="text-neutral-600 hover:text-black transition">Weather</a></li>
+                <li><a asp-controller="RawLead" asp-action="Index" class="text-neutral-600 hover:text-black transition">Raw Leads</a></li>
+                <li><a asp-controller="DesignTemplate" asp-action="Index" class="text-neutral-600 hover:text-black transition">Design Templates</a></li>
+                <li><a asp-controller="LeadIntelligence" asp-action="Index" class="text-neutral-600 hover:text-black transition">Intelligence</a></li>
+                <li><a asp-controller="JsonKeyStat" asp-action="Index" class="text-neutral-600 hover:text-black transition">Key Stats</a></li>
+                <li><a asp-controller="Home" asp-action="Privacy" class="text-neutral-600 hover:text-black transition">Privacy</a></li>
+            </ul>
+
+            <button id="nav-toggle" class="md:hidden text-neutral-600" aria-label="Toggle navigation">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </nav>I
+
+        <div id="nav-mobile" class="hidden md:hidden border-t border-[#d0d0d0]">
+            <ul class="flex flex-col px-4 py-3 gap-3 text-sm">
+                <li><a asp-controller="Home" asp-action="Index" class="text-neutral-600 hover:text-black">Home</a></li>
+                <li><a asp-controller="WeatherForecast" asp-action="Index" class="text-neutral-600 hover:text-black">Weather</a></li>
+                <li><a asp-controller="RawLead" asp-action="Index" class="text-neutral-600 hover:text-black">Raw Leads</a></li>
+                <li><a asp-controller="DesignTemplate" asp-action="Index" class="text-neutral-600 hover:text-black">Design Templates</a></li>
+                <li><a asp-controller="LeadIntelligence" asp-action="Index" class="text-neutral-600 hover:text-black">Intelligence</a></li>
+                <li><a asp-controller="JsonKeyStat" asp-action="Index" class="text-neutral-600 hover:text-black">Key Stats</a></li>
+                <li><a asp-controller="Home" asp-action="Privacy" class="text-neutral-600 hover:text-black">Privacy</a></li>
+            </ul>
         </div>
-    </footer>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pb-8">
+        @RenderBody()
+    </main>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        document.getElementById('nav-toggle').addEventListener('click', function () {
+            var menu = document.getElementById('nav-mobile');
+            menu.classList.toggle('hidden');
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

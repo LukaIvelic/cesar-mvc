@@ -1,0 +1,13 @@
+using cesar.Features.DesignTemplates.Entities;
+
+namespace cesar.Features.DesignTemplates.Models;
+
+public class DesignTemplateViewModel
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public ContentType ContentType { get; set; }
+    public string HtmlMarkup { get; set; } = string.Empty;
+    public string PlaceholderSchema { get; set; } = "{}";
+    public string PreviewHtml { get; set; } = string.Empty;
+}

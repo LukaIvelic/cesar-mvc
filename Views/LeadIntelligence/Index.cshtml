@@ -1,0 +1,46 @@
+@model IEnumerable<cesar.Features.LeadIntelligence.Models.LeadIntelligenceViewModel>
+
+@{
+    var columns = new[] { "ID", "Lead ID", "Content Hash", "Familiarity", "Density", "Last Analyzed", "Actions" };
+}
+
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold">Lead Intelligence</h2>
+        <a asp-action="Create" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">
+            + Add Record
+        </a>
+    </div>
+
+    <table class="w-full border-collapse">
+        <thead>
+            <tr>
+                @foreach (var col in columns)
+                {
+                    <th class="bg-[#efefef] border border-[#d0d0d0] px-4 py-2 text-left text-sm font-semibold">@col</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var record in Model)
+            {
+                <tr>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.Id</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.LeadId</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm font-mono text-xs">@record.ContentHash[..16]…</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.FamiliarityIndex.ToString("F3")</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.DataDensityScore.ToString("F3")</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.LastAnalyzedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">
+                        <div class="flex gap-3">
+                            <a asp-action="Edit" asp-route-id="@record.Id" class="text-neutral-600 hover:underline">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@record.Id" method="post" onsubmit="return confirm('Soft delete this record?')">
+                                <button type="submit" class="text-red-500 hover:underline">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

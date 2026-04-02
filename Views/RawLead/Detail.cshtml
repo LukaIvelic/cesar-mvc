@@ -1,0 +1,36 @@
+@model cesar.Features.RawLead.Models.RawLeadDetailViewModel
+
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold">Lead #@Model.Id — JSON Data</h2>
+        <a asp-action="Index" class="text-sm text-neutral-500 hover:underline">← Back to list</a>
+    </div>
+
+    <div class="bg-[#fafafa] border border-[#d0d0d0] rounded p-4 mb-6 text-sm grid grid-cols-2 gap-3">
+        <div>
+            <span class="text-neutral-500">Source System</span>
+            <p class="font-medium">@Model.SourceSystem</p>
+        </div>
+        <div>
+            <span class="text-neutral-500">External ID</span>
+            <p class="font-mono">@Model.ExternalId</p>
+        </div>
+        <div>
+            <span class="text-neutral-500">Ingested At</span>
+            <p>@Model.IngestedAt.ToString("yyyy-MM-dd HH:mm:ss") UTC</p>
+        </div>
+        <div>
+            <span class="text-neutral-500">Valid From</span>
+            <p>@Model.ValidFrom.ToString("yyyy-MM-dd HH:mm:ss") UTC</p>
+        </div>
+    </div>
+
+    <div>
+        <p class="text-sm text-neutral-500 mb-2">Raw JSON</p>
+        <pre class="bg-[#fafafa] border border-[#d0d0d0] rounded p-4 text-sm font-mono overflow-x-auto whitespace-pre-wrap">@Model.RawJsonData</pre>
+    </div>
+
+    <div class="mt-6 flex gap-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">Edit</a>
+    </div>
+</div>

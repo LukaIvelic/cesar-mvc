@@ -1,0 +1,32 @@
+@model cesar.Features.RawLead.Models.CreateRawLeadModel
+
+<div class="max-w-xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold">Add Raw Lead</h2>
+        <a asp-action="Index" class="text-sm text-neutral-500 hover:underline">← Back to list</a>
+    </div>
+
+    <form asp-action="Create" method="post" class="flex flex-col gap-8">
+        <div>
+            <label asp-for="SourceSystem" class="block text-sm font-medium mb-1">Source System</label>
+            <input asp-for="SourceSystem" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" placeholder="e.g. Salesforce" />
+            <span asp-validation-for="SourceSystem" class="text-red-500 text-xs mt-1 block"></span>
+        </div>
+
+        <div>
+            <label asp-for="ExternalId" class="block text-sm font-medium mb-1">External ID</label>
+            <input asp-for="ExternalId" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black" placeholder="e.g. lead_abc123" />
+            <span asp-validation-for="ExternalId" class="text-red-500 text-xs mt-1 block"></span>
+        </div>
+
+        <div>
+            <label asp-for="RawJsonData" class="block text-sm font-medium mb-1">Raw JSON Data</label>
+            <textarea asp-for="RawJsonData" rows="10" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black resize-y" placeholder='{"name": "John Doe", "email": "john@example.com"}'></textarea>
+            <span asp-validation-for="RawJsonData" class="text-red-500 text-xs mt-1 block"></span>
+        </div>
+
+        <button type="submit" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition self-start">
+            Save Lead
+        </button>
+    </form>
+</div>

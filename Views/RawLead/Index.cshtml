@@ -1,0 +1,46 @@
+@model IEnumerable<cesar.Features.RawLead.Models.RawLeadViewModel>
+
+@{
+    var columns = new[] { "ID", "Source System", "External ID", "Ingested At", "Valid From", "Actions" };
+}
+
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold">Raw Leads</h2>
+        <a asp-action="Create" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">
+            + Add Lead
+        </a>
+    </div>
+
+    <table class="w-full border-collapse">
+        <thead>
+            <tr>
+                @foreach (var column in columns)
+                {
+                    <th class="bg-[#efefef] border border-[#d0d0d0] px-4 py-2 text-left text-sm font-semibold">@column</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var lead in Model)
+            {
+                <tr>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@lead.Id</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@lead.SourceSystem</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm font-mono">@lead.ExternalId</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@lead.IngestedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@lead.ValidFrom.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">
+                        <div class="flex gap-3">
+                            <a asp-action="Detail" asp-route-id="@lead.Id" class="text-blue-600 hover:underline">View JSON</a>
+                            <a asp-action="Edit" asp-route-id="@lead.Id" class="text-neutral-600 hover:underline">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@lead.Id" method="post" onsubmit="return confirm('Soft delete this lead?')">
+                                <button type="submit" class="text-red-500 hover:underline">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
