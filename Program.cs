@@ -74,7 +74,6 @@ static async Task SeedLabDataAsync(AppDbContext dbContext)
         })
         .ToList();
 
-    // filter (.Where) + sort desc (.OrderByDescending) + map (.Select) + materialize (.ToList)
     var leadPreview = rawLeads
         .Where(l => l.SourceSystem == "web_form")
         .OrderByDescending(l => l.IngestedAt)
@@ -145,7 +144,6 @@ static async Task SeedLabDataAsync(AppDbContext dbContext)
 
     await dbContext.SaveChangesAsync();
 
-    // Required query shape: Where/filter + OrderByDescending + Select/map + ToListAsync
     var persistedLeadProjection = await dbContext.RawLeads
         .Where(l => l.ValidTo == null)
         .OrderByDescending(l => l.IngestedAt)
