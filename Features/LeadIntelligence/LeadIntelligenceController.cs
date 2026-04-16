@@ -1,3 +1,4 @@
+using cesar.Extensions;
 using cesar.Features.LeadIntelligence.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,7 @@ public class LeadIntelligenceController : Controller
 
     public async Task<IActionResult> Index()
     {
+        SetCurrentPage("Intelligence");
         var records = await _service.GetAllActiveAsync();
         var viewModels = records.Select(r => new LeadIntelligenceViewModel
         {
@@ -29,12 +31,20 @@ public class LeadIntelligenceController : Controller
     }
 
     [HttpGet]
-    public IActionResult Create() => View(new CreateLeadIntelligenceModel());
+    public IActionResult Create()
+    {
+        SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ("Create", "LeadIntelligence", nameof(Create)));
+        return View(new CreateLeadIntelligenceModel());
+    }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateLeadIntelligenceModel model)
     {
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid)
+        {
+            SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ("Create", "LeadIntelligence", nameof(Create)));
+            return View(model);
+        }
 
         await _service.CreateAsync(model.LeadId, model.ContentHash, model.FamiliarityIndex, model.DataDensityScore);
         return RedirectToAction(nameof(Index));
@@ -43,6 +53,7 @@ public class LeadIntelligenceController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
+        SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ($"Edit #{id}", "LeadIntelligence", nameof(Edit)));
         var entity = await _service.GetByIdAsync(id);
         if (entity is null) return NotFound();
 
@@ -59,7 +70,11 @@ public class LeadIntelligenceController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(EditLeadIntelligenceModel model)
     {
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid)
+        {
+            SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ($"Edit #{model.Id}", "LeadIntelligence", nameof(Edit)));
+            return View(model);
+        }
 
         await _service.UpdateAsync(model.Id, model.LeadId, model.ContentHash, model.FamiliarityIndex, model.DataDensityScore);
         return RedirectToAction(nameof(Index));

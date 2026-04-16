@@ -1,3 +1,4 @@
+using cesar.Extensions;
 using cesar.Features.Weather.Entities;
 using cesar.Features.Weather.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ public class WeatherForecastController : Controller
 
     public async Task<IActionResult> Index()
     {
+        SetCurrentPage("Weather");
         var forecasts = await _weatherService.GetAllForecastsAsync();
 
         var viewModels = forecasts.Select(f => new WeatherForecastViewModel

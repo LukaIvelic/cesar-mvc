@@ -1,3 +1,4 @@
+using cesar.Extensions;
 using cesar.Features.RawLead.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -15,6 +16,7 @@ public class RawLeadController : Controller
 
     public async Task<IActionResult> Index()
     {
+        SetCurrentPage("Raw Leads");
         var leads = await _service.GetAllActiveAsync();
         var viewModels = leads.Select(l => new RawLeadViewModel
         {
@@ -29,6 +31,7 @@ public class RawLeadController : Controller
 
     public async Task<IActionResult> Detail(int id)
     {
+        SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ($"#{id}", "RawLead", nameof(Detail)));
         var lead = await _service.GetByIdAsync(id);
         if (lead is null) return NotFound();
 
@@ -45,12 +48,20 @@ public class RawLeadController : Controller
     }
 
     [HttpGet]
-    public IActionResult Create() => View(new CreateRawLeadModel());
+    public IActionResult Create()
+    {
+        SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ("Create", "RawLead", nameof(Create)));
+        return View(new CreateRawLeadModel());
+    }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateRawLeadModel model)
     {
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid)
+        {
+            SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ("Create", "RawLead", nameof(Create)));
+            return View(model);
+        }
 
         if (!IsValidJson(model.RawJsonData))
         {
@@ -65,6 +76,7 @@ public class RawLeadController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
+        SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ($"Edit #{id}", "RawLead", nameof(Edit)));
         var lead = await _service.GetByIdAsync(id);
         if (lead is null) return NotFound();
 
@@ -80,7 +92,11 @@ public class RawLeadController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(EditRawLeadModel model)
     {
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid)
+        {
+            SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ($"Edit #{model.Id}", "RawLead", nameof(Edit)));
+            return View(model);
+        }
 
         if (!IsValidJson(model.RawJsonData))
         {

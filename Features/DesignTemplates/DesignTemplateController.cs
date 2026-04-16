@@ -1,3 +1,4 @@
+using cesar.Extensions;
 using cesar.Features.DesignTemplates.Models;
 using cesar.Features.RawLead;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,7 @@ public class DesignTemplateController : Controller
 
     public async Task<IActionResult> Index()
     {
+        SetCurrentPage("Design Templates");
         var templates = await _service.GetAllActiveAsync();
         var viewModels = templates.Select(t => new DesignTemplateViewModel
         {
@@ -35,6 +37,7 @@ public class DesignTemplateController : Controller
     [HttpGet]
     public async Task<IActionResult> Create()
     {
+        SetBreadcrumbs(("Design Templates", "DesignTemplate", nameof(Index)), ("Create", "DesignTemplate", nameof(Create)));
         return View(new CreateDesignTemplateModel
         {
             PlaceholderSchema = "{}",
@@ -48,6 +51,7 @@ public class DesignTemplateController : Controller
     {
         if (!ModelState.IsValid)
         {
+            SetBreadcrumbs(("Design Templates", "DesignTemplate", nameof(Index)), ("Create", "DesignTemplate", nameof(Create)));
             model.RawJsonOptions = await BuildRawJsonOptionsAsync();
             return View(model);
         }
@@ -75,6 +79,7 @@ public class DesignTemplateController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
+        SetBreadcrumbs(("Design Templates", "DesignTemplate", nameof(Index)), ($"Edit #{id}", "DesignTemplate", nameof(Edit)));
         var template = await _service.GetByIdAsync(id);
         if (template is null) return NotFound();
 
@@ -95,6 +100,7 @@ public class DesignTemplateController : Controller
     {
         if (!ModelState.IsValid)
         {
+            SetBreadcrumbs(("Design Templates", "DesignTemplate", nameof(Index)), ($"Edit #{model.Id}", "DesignTemplate", nameof(Edit)));
             model.RawJsonOptions = await BuildRawJsonOptionsAsync();
             return View(model);
         }
@@ -129,6 +135,7 @@ public class DesignTemplateController : Controller
     [HttpGet]
     public async Task<IActionResult> Preview(int id, string? previewRawJsonData = null)
     {
+        SetBreadcrumbs(("Design Templates", "DesignTemplate", nameof(Index)), ($"Preview #{id}", "DesignTemplate", nameof(Preview)));
         var template = await _service.GetByIdAsync(id);
         if (template is null) return NotFound();
 
@@ -154,6 +161,7 @@ public class DesignTemplateController : Controller
     [HttpPost]
     public async Task<IActionResult> Preview(int id, PreviewDesignTemplateModel model)
     {
+        SetBreadcrumbs(("Design Templates", "DesignTemplate", nameof(Index)), ($"Preview #{id}", "DesignTemplate", nameof(Preview)));
         var template = await _service.GetByIdAsync(id);
         if (template is null) return NotFound();
 

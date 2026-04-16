@@ -1,3 +1,4 @@
+using cesar.Extensions;
 using cesar.Features.JsonKeyStats.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,7 @@ public class JsonKeyStatController : Controller
 
     public async Task<IActionResult> Index()
     {
+        SetCurrentPage("Key Stats");
         var stats = await _service.GetAllActiveAsync();
         return View(stats.Select(s => new JsonKeyStatViewModel
         {

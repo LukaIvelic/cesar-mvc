@@ -46,6 +46,7 @@
     </header>
 
     <main class="max-w-6xl mx-auto px-4 pb-8">
+        @await Html.PartialAsync("_Breadcrumbs")
         @RenderBody()
     </main>
 

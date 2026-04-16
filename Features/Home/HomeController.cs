@@ -1,3 +1,4 @@
+using cesar.Extensions;
 using cesar.Features.Home.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -8,11 +9,13 @@ public class HomeController : Controller
 {
     public IActionResult Index()
     {
+        // No breadcrumbs on home page
         return View();
     }
 
     public IActionResult Privacy()
     {
+        SetCurrentPage("Privacy");
         return View();
     }
 
