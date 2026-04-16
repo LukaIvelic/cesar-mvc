@@ -16,7 +16,7 @@ public class WeatherForecastController : Controller
 
     public async Task<IActionResult> Index()
     {
-        SetCurrentPage("Weather");
+        this.SetCurrentPage("Weather");
         var forecasts = await _weatherService.GetAllForecastsAsync();
 
         var viewModels = forecasts.Select(f => new WeatherForecastViewModel

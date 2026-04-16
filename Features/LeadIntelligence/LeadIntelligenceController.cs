@@ -15,7 +15,7 @@ public class LeadIntelligenceController : Controller
 
     public async Task<IActionResult> Index()
     {
-        SetCurrentPage("Intelligence");
+        this.SetCurrentPage("Intelligence");
         var records = await _service.GetAllActiveAsync();
         var viewModels = records.Select(r => new LeadIntelligenceViewModel
         {
@@ -33,7 +33,7 @@ public class LeadIntelligenceController : Controller
     [HttpGet]
     public IActionResult Create()
     {
-        SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ("Create", "LeadIntelligence", nameof(Create)));
+        this.SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ("Create", "LeadIntelligence", nameof(Create)));
         return View(new CreateLeadIntelligenceModel());
     }
 
@@ -42,7 +42,7 @@ public class LeadIntelligenceController : Controller
     {
         if (!ModelState.IsValid)
         {
-            SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ("Create", "LeadIntelligence", nameof(Create)));
+            this.SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ("Create", "LeadIntelligence", nameof(Create)));
             return View(model);
         }
 
@@ -53,7 +53,7 @@ public class LeadIntelligenceController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ($"Edit #{id}", "LeadIntelligence", nameof(Edit)));
+        this.SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ($"Edit #{id}", "LeadIntelligence", nameof(Edit)));
         var entity = await _service.GetByIdAsync(id);
         if (entity is null) return NotFound();
 
@@ -72,7 +72,7 @@ public class LeadIntelligenceController : Controller
     {
         if (!ModelState.IsValid)
         {
-            SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ($"Edit #{model.Id}", "LeadIntelligence", nameof(Edit)));
+            this.SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ($"Edit #{model.Id}", "LeadIntelligence", nameof(Edit)));
             return View(model);
         }
 

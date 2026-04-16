@@ -15,7 +15,7 @@ public class HomeController : Controller
 
     public IActionResult Privacy()
     {
-        SetCurrentPage("Privacy");
+        this.SetCurrentPage("Privacy");
         return View();
     }
 

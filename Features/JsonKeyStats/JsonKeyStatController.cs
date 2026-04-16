@@ -15,7 +15,7 @@ public class JsonKeyStatController : Controller
 
     public async Task<IActionResult> Index()
     {
-        SetCurrentPage("Key Stats");
+        this.SetCurrentPage("Key Stats");
         var stats = await _service.GetAllActiveAsync();
         return View(stats.Select(s => new JsonKeyStatViewModel
         {
