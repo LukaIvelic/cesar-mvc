@@ -5,6 +5,7 @@ using System.Text.Json;
 
 namespace cesar.Features.RawLead;
 
+[Route("leads")]
 public class RawLeadController : Controller
 {
     private readonly IRawLeadService _service;
@@ -14,6 +15,7 @@ public class RawLeadController : Controller
         _service = service;
     }
 
+    [Route("")]
     public async Task<IActionResult> Index()
     {
         this.SetCurrentPage("Raw Leads");
@@ -29,6 +31,7 @@ public class RawLeadController : Controller
         return View(viewModels);
     }
 
+    [Route("{id:int}")]
     public async Task<IActionResult> Detail(int id)
     {
         this.SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ($"#{id}", "RawLead", nameof(Detail)));
@@ -48,6 +51,7 @@ public class RawLeadController : Controller
     }
 
     [HttpGet]
+    [Route("create")]
     public IActionResult Create()
     {
         this.SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ("Create", "RawLead", nameof(Create)));
@@ -55,6 +59,7 @@ public class RawLeadController : Controller
     }
 
     [HttpPost]
+    [Route("create")]
     public async Task<IActionResult> Create(CreateRawLeadModel model)
     {
         if (!ModelState.IsValid)
@@ -74,6 +79,7 @@ public class RawLeadController : Controller
     }
 
     [HttpGet]
+    [Route("{id:int}/edit")]
     public async Task<IActionResult> Edit(int id)
     {
         this.SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ($"Edit #{id}", "RawLead", nameof(Edit)));
@@ -90,6 +96,7 @@ public class RawLeadController : Controller
     }
 
     [HttpPost]
+    [Route("{id:int}/edit")]
     public async Task<IActionResult> Edit(EditRawLeadModel model)
     {
         if (!ModelState.IsValid)
@@ -109,6 +116,7 @@ public class RawLeadController : Controller
     }
 
     [HttpPost]
+    [Route("{id:int}/delete")]
     public async Task<IActionResult> Delete(int id)
     {
         await _service.SoftDeleteAsync(id);

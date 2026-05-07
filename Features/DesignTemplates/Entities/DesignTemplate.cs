@@ -1,9 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace cesar.Features.DesignTemplates.Entities;
 
 public class DesignTemplate
 {
+    [Key]
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
 

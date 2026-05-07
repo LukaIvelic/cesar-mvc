@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace cesar.Features.JsonKeyStats.Entities;
 
 public class JsonKeyStat
 {
+    [Key]
     public int Id { get; set; }
     public string Key { get; set; } = string.Empty;
     public int Occurrences { get; set; }
