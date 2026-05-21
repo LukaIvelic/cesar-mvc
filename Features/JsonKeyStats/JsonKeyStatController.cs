@@ -17,13 +17,19 @@ public class JsonKeyStatController : Controller
     {
         this.SetCurrentPage("Key Stats");
         var stats = await _service.GetAllActiveAsync();
-        return View(stats.Select(s => new JsonKeyStatViewModel
+        return View(ToViewModels(stats));
+    }
+
+    public async Task<IActionResult> Search(string? q)
+    {
+        var stats = await _service.GetAllActiveAsync();
+
+        if (!string.IsNullOrWhiteSpace(q))
         {
-            Id = s.Id,
-            Key = s.Key,
-            Occurrences = s.Occurrences,
-            ValidFrom = s.ValidFrom
-        }));
+            stats = stats.Where(s => s.Key.Contains(q, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return PartialView("_Rows", ToViewModels(stats));
     }
 
     [HttpGet]
@@ -67,4 +73,13 @@ public class JsonKeyStatController : Controller
         await _service.SoftDeleteAsync(id);
         return RedirectToAction(nameof(Index));
     }
+
+    private static IEnumerable<JsonKeyStatViewModel> ToViewModels(IEnumerable<Entities.JsonKeyStat> stats) =>
+        stats.Select(s => new JsonKeyStatViewModel
+        {
+            Id = s.Id,
+            Key = s.Key,
+            Occurrences = s.Occurrences,
+            ValidFrom = s.ValidFrom
+        });
 }

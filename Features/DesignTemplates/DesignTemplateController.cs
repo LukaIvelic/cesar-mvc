@@ -21,17 +21,22 @@ public class DesignTemplateController : Controller
     {
         this.SetCurrentPage("Design Templates");
         var templates = await _service.GetAllActiveAsync();
-        var viewModels = templates.Select(t => new DesignTemplateViewModel
-        {
-            Id = t.Id,
-            Name = t.Name,
-            ContentType = t.ContentType,
-            HtmlMarkup = t.HtmlMarkup,
-            PlaceholderSchema = t.PlaceholderSchema,
-            PreviewHtml = _service.RenderMarkup(t.HtmlMarkup, t.PlaceholderSchema)
-        });
+        return View(ToViewModels(templates));
+    }
 
-        return View(viewModels);
+    public async Task<IActionResult> Search(string? q)
+    {
+        var templates = await _service.GetAllActiveAsync();
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            templates = templates.Where(t =>
+                t.Name.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || t.ContentType.ToString().Contains(q, StringComparison.OrdinalIgnoreCase)
+                || t.PlaceholderSchema.Contains(q, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return PartialView("_Rows", ToViewModels(templates));
     }
 
     [HttpGet]
@@ -210,4 +215,15 @@ public class DesignTemplateController : Controller
         try { JsonDocument.Parse(json); return true; }
         catch { return false; }
     }
+
+    private IEnumerable<DesignTemplateViewModel> ToViewModels(IEnumerable<Entities.DesignTemplate> templates) =>
+        templates.Select(t => new DesignTemplateViewModel
+        {
+            Id = t.Id,
+            Name = t.Name,
+            ContentType = t.ContentType,
+            HtmlMarkup = t.HtmlMarkup,
+            PlaceholderSchema = t.PlaceholderSchema,
+            PreviewHtml = _service.RenderMarkup(t.HtmlMarkup, t.PlaceholderSchema)
+        });
 }

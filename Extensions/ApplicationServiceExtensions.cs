@@ -13,6 +13,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IWeatherService, WeatherService>();
         services.AddScoped<IRawLeadService, RawLeadService>();
         services.AddScoped<ILeadIntelligenceService, LeadIntelligenceService>();
+        services.AddHttpClient<ILeadIntelligenceAnalyzer, OpenAiLeadIntelligenceAnalyzer>();
         services.AddScoped<IJsonKeyStatService, JsonKeyStatService>();
         services.AddScoped<IDesignTemplateService, DesignTemplateService>();
         return services;

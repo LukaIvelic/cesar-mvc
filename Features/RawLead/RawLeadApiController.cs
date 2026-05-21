@@ -16,9 +16,12 @@ public class RawLeadApiController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(string? q = null)
     {
-        var leads = await _service.GetAllActiveAsync();
+        var leads = string.IsNullOrWhiteSpace(q)
+            ? await _service.GetAllActiveAsync()
+            : await _service.SearchActiveAsync(q, 50);
+
         var result = leads.Select(l => new RawLeadViewModel
         {
             Id = l.Id,
@@ -28,6 +31,17 @@ public class RawLeadApiController : ControllerBase
             ValidFrom = l.ValidFrom
         });
         return Ok(result);
+    }
+
+    [HttpGet("autocomplete")]
+    public async Task<IActionResult> Autocomplete(string? term = null)
+    {
+        var leads = await _service.SearchActiveAsync(term ?? string.Empty, 12);
+        return Ok(leads.Select(l => new
+        {
+            id = l.Id,
+            text = $"#{l.Id} {l.SourceSystem} - {l.ExternalId}".Replace("_", " ")
+        }));
     }
 
     [HttpGet("{id}")]

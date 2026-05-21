@@ -15,9 +15,14 @@ public class JsonKeyStatApiController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(string? q = null)
     {
         var stats = await _service.GetAllActiveAsync();
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            stats = stats.Where(s => s.Key.Contains(q, StringComparison.OrdinalIgnoreCase));
+        }
+
         return Ok(stats.Select(s => new JsonKeyStatViewModel
         {
             Id = s.Id,

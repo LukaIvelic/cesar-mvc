@@ -12,6 +12,17 @@
         </a>
     </div>
 
+    <div class="mb-4">
+        <label for="json-key-search" class="block text-sm font-medium mb-1">Search keys</label>
+        <input id="json-key-search"
+               type="search"
+               class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black"
+               placeholder="Search by JSON key"
+               data-ajax-search
+               data-ajax-url="@Url.Action("Search", "JsonKeyStat")"
+               data-ajax-target="#json-key-rows" />
+    </div>
+
     <table class="w-full border-collapse">
         <thead>
             <tr>
@@ -21,24 +32,8 @@
                 }
             </tr>
         </thead>
-        <tbody>
-            @foreach (var stat in Model)
-            {
-                <tr>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@stat.Id</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm font-mono">@stat.Key</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm font-semibold">@stat.Occurrences</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@stat.ValidFrom.ToString("yyyy-MM-dd HH:mm")</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">
-                        <div class="flex gap-3">
-                            <a asp-action="Edit" asp-route-id="@stat.Id" class="text-neutral-600 hover:underline">Edit</a>
-                            <form asp-action="Delete" asp-route-id="@stat.Id" method="post" onsubmit="return confirm('Soft delete this key?')">
-                                <button type="submit" class="text-red-500 hover:underline">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            }
+        <tbody id="json-key-rows">
+            @await Html.PartialAsync("_Rows", Model)
         </tbody>
     </table>
 </div>

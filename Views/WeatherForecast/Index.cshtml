@@ -4,30 +4,36 @@
     var columns = new[] { "Date", "Temperature", "Summary", "Actions" };
 }
 
-<h2 class="text-2xl font-semibold mb-4">Weather Forecasts</h2>
-<a asp-action="Create" class="mb-4 inline-block">Add New Forecast</a>
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold">Weather Forecasts</h2>
+        <a asp-action="Create" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">
+            + Add Forecast
+        </a>
+    </div>
 
-<table class="w-full border-collapse">
-    <thead>
-        <tr>
-            @foreach (var column in columns)
-            {
-                <th class="bg-[#efefef] border border-[#d0d0d0] px-4 py-2 text-left font-semibold">@column</th>
-            }
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var forecast in Model)
-        {
+    <div class="mb-4">
+        <label for="weather-search" class="block text-sm font-medium mb-1">Search forecasts</label>
+        <input id="weather-search"
+               type="search"
+               class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black"
+               placeholder="Search by date, temperature or summary"
+               data-ajax-search
+               data-ajax-url="@Url.Action("Search", "WeatherForecast")"
+               data-ajax-target="#weather-rows" />
+    </div>
+
+    <table class="w-full border-collapse">
+        <thead>
             <tr>
-                <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">@forecast.Date</td>
-                <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">@forecast.TemperatureDisplay</td>
-                <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">@forecast.Summary</td>
-                <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">
-                    <a asp-action="Edit" asp-route-id="@forecast.Id">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@forecast.Id">Delete</a>
-                </td>
+                @foreach (var column in columns)
+                {
+                    <th class="bg-[#efefef] border border-[#d0d0d0] px-4 py-2 text-left font-semibold">@column</th>
+                }
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody id="weather-rows">
+            @await Html.PartialAsync("_Rows", Model)
+        </tbody>
+    </table>
+</div>

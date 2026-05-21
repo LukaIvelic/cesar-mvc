@@ -18,16 +18,22 @@ public class WeatherForecastController : Controller
     {
         this.SetCurrentPage("Weather");
         var forecasts = await _weatherService.GetAllForecastsAsync();
+        return View(ToViewModels(forecasts));
+    }
 
-        var viewModels = forecasts.Select(f => new WeatherForecastViewModel
+    public async Task<IActionResult> Search(string? q)
+    {
+        var forecasts = await _weatherService.GetAllForecastsAsync();
+
+        if (!string.IsNullOrWhiteSpace(q))
         {
-            Id = f.Id,
-            Date = f.Date,
-            TemperatureDisplay = $"{f.TemperatureC}°C / {f.TemperatureF}°F",
-            Summary = f.Summary ?? "No summary"
-        });
+            forecasts = forecasts.Where(f =>
+                f.Date.ToString().Contains(q, StringComparison.OrdinalIgnoreCase)
+                || f.TemperatureC.ToString().Contains(q, StringComparison.OrdinalIgnoreCase)
+                || (f.Summary?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
 
-        return View(viewModels);
+        return PartialView("_Rows", ToViewModels(forecasts));
     }
 
     [HttpGet]
@@ -44,7 +50,7 @@ public class WeatherForecastController : Controller
 
         var entity = new WeatherForecast
         {
-            Date = model.Date,
+            Date = DateOnly.FromDateTime(model.Date),
             TemperatureC = model.TemperatureC,
             Summary = model.Summary
         };
@@ -52,4 +58,50 @@ public class WeatherForecastController : Controller
         await _weatherService.AddForecastAsync(entity);
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var forecast = await _weatherService.GetForecastByIdAsync(id);
+        if (forecast is null) return NotFound();
+
+        return View(new EditWeatherForecastModel
+        {
+            Id = forecast.Id,
+            Date = forecast.Date.ToDateTime(TimeOnly.MinValue),
+            TemperatureC = forecast.TemperatureC,
+            Summary = forecast.Summary
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(EditWeatherForecastModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        await _weatherService.UpdateForecastAsync(
+            model.Id,
+            DateOnly.FromDateTime(model.Date),
+            model.TemperatureC,
+            model.Summary);
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _weatherService.DeleteForecastAsync(id);
+        return RedirectToAction(nameof(Index));
+    }
+
+    private static IEnumerable<WeatherForecastViewModel> ToViewModels(IEnumerable<WeatherForecast> forecasts) =>
+        forecasts.Select(f => new WeatherForecastViewModel
+        {
+            Id = f.Id,
+            Date = f.Date,
+            TemperatureDisplay = $"{f.TemperatureC}C / {f.TemperatureF}F",
+            Summary = f.Summary ?? "No summary"
+        });
 }

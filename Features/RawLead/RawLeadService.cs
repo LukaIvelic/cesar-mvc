@@ -8,6 +8,7 @@ using RawLead = global::cesar.Features.RawLead.Entities.RawLead;
 public interface IRawLeadService
 {
     Task<IEnumerable<RawLead>> GetAllActiveAsync();
+    Task<IEnumerable<RawLead>> SearchActiveAsync(string term, int take = 10);
     Task<RawLead?> GetByIdAsync(int id);
     Task CreateAsync(string sourceSystem, string externalId, string rawJson);
     Task CreateBulkAsync(IEnumerable<(string SourceSystem, string ExternalId, string RawJson)> leads);
@@ -28,6 +29,9 @@ public class RawLeadService : IRawLeadService
 
     public Task<IEnumerable<RawLead>> GetAllActiveAsync() =>
         _repository.GetAllActiveAsync();
+
+    public Task<IEnumerable<RawLead>> SearchActiveAsync(string term, int take = 10) =>
+        _repository.SearchActiveAsync(term, take);
 
     public Task<RawLead?> GetByIdAsync(int id) =>
         _repository.GetByIdAsync(id);

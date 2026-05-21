@@ -15,9 +15,17 @@ public class LeadIntelligenceApiController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(string? q = null)
     {
         var records = await _service.GetAllActiveAsync();
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            records = records.Where(r =>
+                r.Id.ToString().Contains(q, StringComparison.OrdinalIgnoreCase)
+                || r.LeadId.ToString().Contains(q, StringComparison.OrdinalIgnoreCase)
+                || r.ContentHash.Contains(q, StringComparison.OrdinalIgnoreCase));
+        }
+
         return Ok(records.Select(r => new LeadIntelligenceViewModel
         {
             Id = r.Id,
@@ -71,8 +79,15 @@ public class LeadIntelligenceApiController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        await _service.CreateAsync(model.LeadId, model.ContentHash, model.FamiliarityIndex, model.DataDensityScore);
-        return Created(string.Empty, new { message = "LeadIntelligence record created." });
+        try
+        {
+            await _service.CreateAsync(model.LeadId, model.ContentHash, model.FamiliarityIndex, model.DataDensityScore);
+            return Created(string.Empty, new { message = "LeadIntelligence record created." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpPost("compute-hash")]
@@ -81,13 +96,43 @@ public class LeadIntelligenceApiController : ControllerBase
         return Ok(new { hash = _service.ComputeSha256(content) });
     }
 
+    [HttpPost("analyze/{leadId:int}")]
+    public async Task<IActionResult> Analyze(int leadId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var entity = await _service.AnalyzeLeadAsync(leadId, cancellationToken);
+            return Ok(new LeadIntelligenceViewModel
+            {
+                Id = entity.Id,
+                LeadId = entity.LeadId,
+                ContentHash = entity.ContentHash,
+                FamiliarityIndex = entity.FamiliarityIndex,
+                DataDensityScore = entity.DataDensityScore,
+                LastAnalyzedAt = entity.LastAnalyzedAt,
+                ValidFrom = entity.ValidFrom
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] EditLeadIntelligenceModel model)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        await _service.UpdateAsync(id, model.LeadId, model.ContentHash, model.FamiliarityIndex, model.DataDensityScore);
-        return Ok(new { message = "Updated." });
+        try
+        {
+            await _service.UpdateAsync(id, model.LeadId, model.ContentHash, model.FamiliarityIndex, model.DataDensityScore);
+            return Ok(new { message = "Updated." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpDelete("{id}")]

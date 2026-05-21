@@ -9,6 +9,7 @@ public interface IWeatherRepository
     Task<IEnumerable<WeatherForecast>> GetAllAsync();
     Task<WeatherForecast?> GetByIdAsync(int id);
     Task AddAsync(WeatherForecast forecast);
+    Task UpdateAsync(WeatherForecast forecast);
     Task DeleteAsync(int id);
 }
 
@@ -30,6 +31,12 @@ public class WeatherRepository : IWeatherRepository
     public async Task AddAsync(WeatherForecast forecast)
     {
         _context.WeatherForecasts.Add(forecast);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(WeatherForecast forecast)
+    {
+        _context.WeatherForecasts.Update(forecast);
         await _context.SaveChangesAsync();
     }
 

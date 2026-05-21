@@ -1,1 +1,33 @@
 @import "tailwindcss";
+
+@keyframes ajax-row-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ajax-row-enter {
+  animation: ajax-row-enter 180ms ease-out both;
+}
+
+.ajax-loading {
+  background-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.06), transparent);
+  background-size: 200% 100%;
+  animation: ajax-search-loading 800ms linear infinite;
+}
+
+@keyframes ajax-search-loading {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}

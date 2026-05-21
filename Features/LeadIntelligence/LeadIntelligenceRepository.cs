@@ -9,6 +9,7 @@ public interface ILeadIntelligenceRepository
 {
     Task<IEnumerable<LeadIntelligence>> GetAllActiveAsync();
     Task<LeadIntelligence?> GetByIdAsync(int id);
+    Task<LeadIntelligence?> GetByLeadIdAsync(int leadId);
     Task<LeadIntelligence?> GetByContentHashAsync(string contentHash);
     Task AddAsync(LeadIntelligence entity);
     Task UpdateAsync(LeadIntelligence entity);
@@ -29,6 +30,12 @@ public class LeadIntelligenceRepository : ILeadIntelligenceRepository
 
     public async Task<LeadIntelligence?> GetByIdAsync(int id) =>
         await _context.LeadIntelligences.FindAsync(id);
+
+    public async Task<LeadIntelligence?> GetByLeadIdAsync(int leadId) =>
+        await _context.LeadIntelligences
+            .Where(l => l.ValidTo == null && l.LeadId == leadId)
+            .OrderByDescending(l => l.LastAnalyzedAt)
+            .FirstOrDefaultAsync();
 
     public async Task<LeadIntelligence?> GetByContentHashAsync(string contentHash) =>
         await _context.LeadIntelligences

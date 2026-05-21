@@ -12,6 +12,17 @@
         </a>
     </div>
 
+    <div class="mb-4">
+        <label for="design-template-search" class="block text-sm font-medium mb-1">Search templates</label>
+        <input id="design-template-search"
+               type="search"
+               class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black"
+               placeholder="Search by name, content type or placeholder"
+               data-ajax-search
+               data-ajax-url="@Url.Action("Search", "DesignTemplate")"
+               data-ajax-target="#design-template-rows" />
+    </div>
+
     <table class="w-full border-collapse">
         <thead>
             <tr>
@@ -21,28 +32,8 @@
                 }
             </tr>
         </thead>
-        <tbody>
-            @foreach (var template in Model)
-            {
-                <tr class="align-top">
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-sm">@template.Id</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-sm font-medium">@template.Name</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-sm">@template.ContentType</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-xs font-mono whitespace-pre-wrap max-w-sm">@template.PlaceholderSchema</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-sm">
-                        <a asp-action="Preview" asp-route-id="@template.Id" class="text-blue-600 hover:underline">Open preview</a>
-                    </td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-sm">
-                        <div class="flex flex-col gap-2">
-                            <a asp-action="Preview" asp-route-id="@template.Id" class="text-blue-600 hover:underline">Preview</a>
-                            <a asp-action="Edit" asp-route-id="@template.Id" class="text-neutral-600 hover:underline">Edit</a>
-                            <form asp-action="Delete" asp-route-id="@template.Id" method="post" onsubmit="return confirm('Soft delete this template?')">
-                                <button type="submit" class="text-red-500 hover:underline">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            }
+        <tbody id="design-template-rows">
+            @await Html.PartialAsync("_Rows", Model)
         </tbody>
     </table>
 </div>

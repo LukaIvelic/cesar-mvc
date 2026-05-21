@@ -1,12 +1,14 @@
-@model cesar.Features.Weather.Models.CreateWeatherForecastModel
+@model cesar.Features.Weather.Models.EditWeatherForecastModel
 
 <div class="max-w-xl mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold">Add Weather Forecast</h2>
+        <h2 class="text-2xl font-semibold">Edit Forecast #@Model.Id</h2>
         <a asp-action="Index" class="text-sm text-neutral-500 hover:underline">Back to list</a>
     </div>
 
-    <form asp-action="Create" method="post" class="flex flex-col gap-8">
+    <form asp-action="Edit" method="post" class="flex flex-col gap-8">
+        <input type="hidden" asp-for="Id" />
+
         @await Html.PartialAsync("_DateTimePicker", null, new ViewDataDictionary(ViewData)
         {
             ["FieldName"] = nameof(Model.Date),
@@ -28,7 +30,7 @@
         </div>
 
         <button type="submit" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition self-start">
-            Save Forecast
+            Save Changes
         </button>
     </form>
 </div>

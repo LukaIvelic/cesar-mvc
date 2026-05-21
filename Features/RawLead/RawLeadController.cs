@@ -20,15 +20,18 @@ public class RawLeadController : Controller
     {
         this.SetCurrentPage("Raw Leads");
         var leads = await _service.GetAllActiveAsync();
-        var viewModels = leads.Select(l => new RawLeadViewModel
-        {
-            Id = l.Id,
-            SourceSystem = l.SourceSystem,
-            ExternalId = l.ExternalId,
-            IngestedAt = l.IngestedAt,
-            ValidFrom = l.ValidFrom
-        });
-        return View(viewModels);
+        return View(ToViewModels(leads));
+    }
+
+    [HttpGet]
+    [Route("search")]
+    public async Task<IActionResult> Search(string? q)
+    {
+        var leads = string.IsNullOrWhiteSpace(q)
+            ? await _service.GetAllActiveAsync()
+            : await _service.SearchActiveAsync(q, 50);
+
+        return PartialView("_Rows", ToViewModels(leads));
     }
 
     [Route("{id:int}")]
@@ -71,6 +74,7 @@ public class RawLeadController : Controller
         if (!IsValidJson(model.RawJsonData))
         {
             ModelState.AddModelError(nameof(model.RawJsonData), "Invalid JSON format.");
+            this.SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ("Create", "RawLead", nameof(Create)));
             return View(model);
         }
 
@@ -108,6 +112,7 @@ public class RawLeadController : Controller
         if (!IsValidJson(model.RawJsonData))
         {
             ModelState.AddModelError(nameof(model.RawJsonData), "Invalid JSON format.");
+            this.SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ($"Edit #{model.Id}", "RawLead", nameof(Edit)));
             return View(model);
         }
 
@@ -141,4 +146,14 @@ public class RawLeadController : Controller
         try { JsonDocument.Parse(json); return true; }
         catch { return false; }
     }
+
+    private static IEnumerable<RawLeadViewModel> ToViewModels(IEnumerable<Entities.RawLead> leads) =>
+        leads.Select(l => new RawLeadViewModel
+        {
+            Id = l.Id,
+            SourceSystem = l.SourceSystem,
+            ExternalId = l.ExternalId,
+            IngestedAt = l.IngestedAt,
+            ValidFrom = l.ValidFrom
+        });
 }

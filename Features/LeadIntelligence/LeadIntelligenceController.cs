@@ -1,5 +1,6 @@
 using cesar.Extensions;
 using cesar.Features.LeadIntelligence.Models;
+using cesar.Features.RawLead;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cesar.Features.LeadIntelligence;
@@ -7,27 +8,34 @@ namespace cesar.Features.LeadIntelligence;
 public class LeadIntelligenceController : Controller
 {
     private readonly ILeadIntelligenceService _service;
+    private readonly IRawLeadService _rawLeadService;
 
-    public LeadIntelligenceController(ILeadIntelligenceService service)
+    public LeadIntelligenceController(ILeadIntelligenceService service, IRawLeadService rawLeadService)
     {
         _service = service;
+        _rawLeadService = rawLeadService;
     }
 
     public async Task<IActionResult> Index()
     {
         this.SetCurrentPage("Intelligence");
         var records = await _service.GetAllActiveAsync();
-        var viewModels = records.Select(r => new LeadIntelligenceViewModel
+        return View(ToViewModels(records));
+    }
+
+    public async Task<IActionResult> Search(string? q)
+    {
+        var records = await _service.GetAllActiveAsync();
+
+        if (!string.IsNullOrWhiteSpace(q))
         {
-            Id = r.Id,
-            LeadId = r.LeadId,
-            ContentHash = r.ContentHash,
-            FamiliarityIndex = r.FamiliarityIndex,
-            DataDensityScore = r.DataDensityScore,
-            LastAnalyzedAt = r.LastAnalyzedAt,
-            ValidFrom = r.ValidFrom
-        });
-        return View(viewModels);
+            records = records.Where(r =>
+                r.Id.ToString().Contains(q, StringComparison.OrdinalIgnoreCase)
+                || r.LeadId.ToString().Contains(q, StringComparison.OrdinalIgnoreCase)
+                || r.ContentHash.Contains(q, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return PartialView("_Rows", ToViewModels(records));
     }
 
     [HttpGet]
@@ -40,14 +48,47 @@ public class LeadIntelligenceController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(CreateLeadIntelligenceModel model)
     {
+        await ValidateLeadAsync(model.LeadId);
+
         if (!ModelState.IsValid)
         {
             this.SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ("Create", "LeadIntelligence", nameof(Create)));
+            model.LeadDisplayName = await GetLeadDisplayNameAsync(model.LeadId);
             return View(model);
         }
 
         await _service.CreateAsync(model.LeadId, model.ContentHash, model.FamiliarityIndex, model.DataDensityScore);
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Analyze(CreateLeadIntelligenceModel model, CancellationToken cancellationToken)
+    {
+        ModelState.Remove(nameof(CreateLeadIntelligenceModel.ContentHash));
+        ModelState.Remove(nameof(CreateLeadIntelligenceModel.FamiliarityIndex));
+        ModelState.Remove(nameof(CreateLeadIntelligenceModel.DataDensityScore));
+
+        await ValidateLeadAsync(model.LeadId);
+
+        if (!ModelState.IsValid)
+        {
+            this.SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ("Create", "LeadIntelligence", nameof(Create)));
+            model.LeadDisplayName = await GetLeadDisplayNameAsync(model.LeadId);
+            return View(nameof(Create), model);
+        }
+
+        try
+        {
+            await _service.AnalyzeLeadAsync(model.LeadId, cancellationToken);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (InvalidOperationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            this.SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ("Create", "LeadIntelligence", nameof(Create)));
+            model.LeadDisplayName = await GetLeadDisplayNameAsync(model.LeadId);
+            return View(nameof(Create), model);
+        }
     }
 
     [HttpGet]
@@ -61,6 +102,7 @@ public class LeadIntelligenceController : Controller
         {
             Id = entity.Id,
             LeadId = entity.LeadId,
+            LeadDisplayName = await GetLeadDisplayNameAsync(entity.LeadId),
             ContentHash = entity.ContentHash,
             FamiliarityIndex = entity.FamiliarityIndex,
             DataDensityScore = entity.DataDensityScore
@@ -70,9 +112,12 @@ public class LeadIntelligenceController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(EditLeadIntelligenceModel model)
     {
+        await ValidateLeadAsync(model.LeadId);
+
         if (!ModelState.IsValid)
         {
             this.SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ($"Edit #{model.Id}", "LeadIntelligence", nameof(Edit)));
+            model.LeadDisplayName = await GetLeadDisplayNameAsync(model.LeadId);
             return View(model);
         }
 
@@ -86,4 +131,43 @@ public class LeadIntelligenceController : Controller
         await _service.SoftDeleteAsync(id);
         return RedirectToAction(nameof(Index));
     }
+
+    private async Task ValidateLeadAsync(int leadId)
+    {
+        if (leadId <= 0)
+        {
+            return;
+        }
+
+        var lead = await _rawLeadService.GetByIdAsync(leadId);
+        if (lead is null || lead.ValidTo is not null)
+        {
+            ModelState.AddModelError(nameof(CreateLeadIntelligenceModel.LeadId), "Select an active raw lead.");
+        }
+    }
+
+    private async Task<string> GetLeadDisplayNameAsync(int leadId)
+    {
+        if (leadId <= 0)
+        {
+            return string.Empty;
+        }
+
+        var lead = await _rawLeadService.GetByIdAsync(leadId);
+        return lead is null
+            ? string.Empty
+            : $"#{lead.Id} {lead.SourceSystem} - {lead.ExternalId}".Replace("_", " ");
+    }
+
+    private static IEnumerable<LeadIntelligenceViewModel> ToViewModels(IEnumerable<Entities.LeadIntelligence> records) =>
+        records.Select(r => new LeadIntelligenceViewModel
+        {
+            Id = r.Id,
+            LeadId = r.LeadId,
+            ContentHash = r.ContentHash,
+            FamiliarityIndex = r.FamiliarityIndex,
+            DataDensityScore = r.DataDensityScore,
+            LastAnalyzedAt = r.LastAnalyzedAt,
+            ValidFrom = r.ValidFrom
+        });
 }

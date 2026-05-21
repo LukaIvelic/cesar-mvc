@@ -1,0 +1,23 @@
+@{
+    var fieldName = ViewData["FieldName"]?.ToString() ?? "SelectedId";
+    var label = ViewData["Label"]?.ToString() ?? fieldName;
+    var searchUrl = ViewData["SearchUrl"]?.ToString() ?? string.Empty;
+    var selectedValue = ViewData["SelectedValue"]?.ToString() ?? string.Empty;
+    var selectedText = ViewData["SelectedText"]?.ToString() ?? string.Empty;
+    var placeholder = ViewData["Placeholder"]?.ToString() ?? "Start typing...";
+    var requiredMessage = ViewData["RequiredMessage"]?.ToString() ?? $"{label} is required.";
+}
+
+<div class="relative" data-autocomplete data-autocomplete-url="@searchUrl" data-required-message="@requiredMessage">
+    <label for="@($"{fieldName}_Display")" class="block text-sm font-medium mb-1">@label</label>
+    <input id="@fieldName" name="@fieldName" type="hidden" value="@selectedValue" data-autocomplete-value />
+    <input id="@($"{fieldName}_Display")"
+           type="text"
+           value="@selectedText"
+           autocomplete="off"
+           placeholder="@placeholder"
+           class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black"
+           data-autocomplete-input />
+    <div class="absolute z-20 mt-1 w-full bg-white border border-[#d0d0d0] rounded shadow-sm hidden max-h-56 overflow-auto" data-autocomplete-menu></div>
+    <span class="text-red-500 text-xs mt-1 block" data-autocomplete-error data-valmsg-for="@fieldName"></span>
+</div>

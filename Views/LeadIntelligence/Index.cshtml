@@ -12,6 +12,17 @@
         </a>
     </div>
 
+    <div class="mb-4">
+        <label for="lead-intelligence-search" class="block text-sm font-medium mb-1">Search intelligence</label>
+        <input id="lead-intelligence-search"
+               type="search"
+               class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black"
+               placeholder="Search by ID, lead ID or hash"
+               data-ajax-search
+               data-ajax-url="@Url.Action("Search", "LeadIntelligence")"
+               data-ajax-target="#lead-intelligence-rows" />
+    </div>
+
     <table class="w-full border-collapse">
         <thead>
             <tr>
@@ -21,26 +32,8 @@
                 }
             </tr>
         </thead>
-        <tbody>
-            @foreach (var record in Model)
-            {
-                <tr>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.Id</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.LeadId</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm font-mono text-xs">@record.ContentHash[..16]…</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.FamiliarityIndex.ToString("F3")</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.DataDensityScore.ToString("F3")</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.LastAnalyzedAt.ToString("yyyy-MM-dd HH:mm")</td>
-                    <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">
-                        <div class="flex gap-3">
-                            <a asp-action="Edit" asp-route-id="@record.Id" class="text-neutral-600 hover:underline">Edit</a>
-                            <form asp-action="Delete" asp-route-id="@record.Id" method="post" onsubmit="return confirm('Soft delete this record?')">
-                                <button type="submit" class="text-red-500 hover:underline">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            }
+        <tbody id="lead-intelligence-rows">
+            @await Html.PartialAsync("_Rows", Model)
         </tbody>
     </table>
 </div>

@@ -2,8 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace cesar.Features.Weather.Models;
 
-public class CreateWeatherForecastModel
+public class EditWeatherForecastModel
 {
+    public int Id { get; set; }
+
     [Required(ErrorMessage = "Date and time are required.")]
     public DateTime Date { get; set; } = DateTime.Now;
 

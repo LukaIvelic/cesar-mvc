@@ -4,8 +4,10 @@ namespace cesar.Features.LeadIntelligence.Models;
 
 public class CreateLeadIntelligenceModel
 {
-    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "Lead is required.")]
     public int LeadId { get; set; }
+
+    public string LeadDisplayName { get; set; } = string.Empty;
 
     [Required]
     public string ContentHash { get; set; } = string.Empty;

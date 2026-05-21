@@ -8,6 +8,7 @@ using RawLead = global::cesar.Features.RawLead.Entities.RawLead;
 public interface IRawLeadRepository
 {
     Task<IEnumerable<RawLead>> GetAllActiveAsync();
+    Task<IEnumerable<RawLead>> SearchActiveAsync(string term, int take = 10);
     Task<RawLead?> GetByIdAsync(int id);
     Task AddAsync(RawLead lead);
     Task AddRangeAsync(IEnumerable<RawLead> leads);
@@ -25,7 +26,30 @@ public class RawLeadRepository : IRawLeadRepository
     }
 
     public async Task<IEnumerable<RawLead>> GetAllActiveAsync() =>
-        await _context.RawLeads.Where(r => r.ValidTo == null).ToListAsync();
+        await _context.RawLeads
+            .Where(r => r.ValidTo == null)
+            .OrderByDescending(r => r.IngestedAt)
+            .ToListAsync();
+
+    public async Task<IEnumerable<RawLead>> SearchActiveAsync(string term, int take = 10)
+    {
+        var activeLeads = await _context.RawLeads
+            .Where(r => r.ValidTo == null)
+            .OrderByDescending(r => r.IngestedAt)
+            .ToListAsync();
+
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            return activeLeads.Take(take);
+        }
+
+        return activeLeads
+            .Where(r =>
+                r.SourceSystem.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || r.ExternalId.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || r.RawJsonData.Contains(term, StringComparison.OrdinalIgnoreCase))
+            .Take(take);
+    }
 
     public async Task<RawLead?> GetByIdAsync(int id) =>
         await _context.RawLeads.FindAsync(id);

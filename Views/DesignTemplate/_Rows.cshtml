@@ -1,0 +1,32 @@
+@model IEnumerable<cesar.Features.DesignTemplates.Models.DesignTemplateViewModel>
+
+@if (!Model.Any())
+{
+    <tr>
+        <td colspan="6" class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-4 text-sm text-neutral-500">No templates found.</td>
+    </tr>
+}
+else
+{
+    @foreach (var template in Model)
+    {
+        <tr class="align-top">
+            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-sm">@template.Id</td>
+            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-sm font-medium">@template.Name</td>
+            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-sm">@template.ContentType</td>
+            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-xs font-mono whitespace-pre-wrap max-w-sm">@template.PlaceholderSchema</td>
+            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-sm">
+                <a asp-action="Preview" asp-route-id="@template.Id" class="text-blue-600 hover:underline">Open preview</a>
+            </td>
+            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-3 text-sm">
+                <div class="flex flex-col gap-2">
+                    <a asp-action="Preview" asp-route-id="@template.Id" class="text-blue-600 hover:underline">Preview</a>
+                    <a asp-action="Edit" asp-route-id="@template.Id" class="text-neutral-600 hover:underline">Edit</a>
+                    <form asp-action="Delete" asp-route-id="@template.Id" method="post" onsubmit="return confirm('Soft delete this template?')">
+                        <button type="submit" class="text-red-500 hover:underline">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+    }
+}
