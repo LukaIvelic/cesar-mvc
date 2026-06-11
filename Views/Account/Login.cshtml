@@ -1,0 +1,63 @@
+@model cesar.Features.Identity.Models.LoginModel
+@using cesar.Features.Identity.Entities
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> SignInManager
+
+@{
+    ViewData["Title"] = "Log in";
+    var externalProviders = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+}
+
+<div class="max-w-md mx-auto px-4 py-8">
+    <h2 class="text-2xl font-semibold mb-6">Log in</h2>
+
+    <form asp-action="Login" method="post" class="flex flex-col gap-4">
+        <input type="hidden" asp-for="ReturnUrl" />
+        <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm"></div>
+
+        <div>
+            <label asp-for="Email" class="block text-sm font-medium mb-1"></label>
+            <input asp-for="Email" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" />
+            <span asp-validation-for="Email" class="text-red-500 text-xs mt-1 block"></span>
+        </div>
+
+        <div>
+            <label asp-for="Password" class="block text-sm font-medium mb-1"></label>
+            <input asp-for="Password" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" />
+            <span asp-validation-for="Password" class="text-red-500 text-xs mt-1 block"></span>
+        </div>
+
+        <label class="flex items-center gap-2 text-sm text-neutral-700">
+            <input asp-for="RememberMe" class="rounded border-[#d0d0d0]" />
+            Remember me
+        </label>
+
+        <button type="submit" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">Log in</button>
+    </form>
+
+    @if (externalProviders.Any())
+    {
+        <div class="mt-6 border-t border-[#d0d0d0] pt-6">
+            <p class="text-sm text-neutral-500 mb-3">External login</p>
+            @foreach (var provider in externalProviders)
+            {
+                <form asp-action="ExternalLogin" method="post" class="mb-2">
+                    <input type="hidden" name="provider" value="@provider.Name" />
+                    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                    <button type="submit" class="w-full border border-[#d0d0d0] text-sm px-4 py-2 rounded hover:bg-neutral-100 transition">
+                        Continue with @provider.DisplayName
+                    </button>
+                </form>
+            }
+        </div>
+    }
+
+    <p class="mt-6 text-sm text-neutral-600">
+        No account?
+        <a asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl" class="text-blue-600 hover:underline">Register</a>
+    </p>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

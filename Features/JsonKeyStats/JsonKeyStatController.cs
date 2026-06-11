@@ -1,5 +1,7 @@
 using cesar.Extensions;
+using cesar.Features.Identity;
 using cesar.Features.JsonKeyStats.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cesar.Features.JsonKeyStats;
@@ -13,6 +15,7 @@ public class JsonKeyStatController : Controller
         _service = service;
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
         this.SetCurrentPage("Key Stats");
@@ -20,6 +23,7 @@ public class JsonKeyStatController : Controller
         return View(ToViewModels(stats));
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Search(string? q)
     {
         var stats = await _service.GetAllActiveAsync();
@@ -33,9 +37,11 @@ public class JsonKeyStatController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public IActionResult Create() => View(new CreateJsonKeyStatModel());
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Create(CreateJsonKeyStatModel model)
     {
         if (!ModelState.IsValid) return View(model);
@@ -45,6 +51,7 @@ public class JsonKeyStatController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Edit(int id)
     {
         var entity = await _service.GetByIdAsync(id);
@@ -59,6 +66,7 @@ public class JsonKeyStatController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Edit(EditJsonKeyStatModel model)
     {
         if (!ModelState.IsValid) return View(model);
@@ -68,6 +76,7 @@ public class JsonKeyStatController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.Admin)]
     public async Task<IActionResult> Delete(int id)
     {
         await _service.SoftDeleteAsync(id);

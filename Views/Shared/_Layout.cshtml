@@ -25,6 +25,10 @@
                 <li><a asp-controller="Home" asp-action="Privacy" class="text-neutral-600 hover:text-black transition">Privacy</a></li>
             </ul>
 
+            <div class="hidden md:block">
+                @await Html.PartialAsync("_LoginPartial")
+            </div>
+
             <button id="nav-toggle" class="md:hidden text-neutral-600" aria-label="Toggle navigation">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -42,6 +46,9 @@
                 <li><a asp-controller="JsonKeyStat" asp-action="Index" class="text-neutral-600 hover:text-black">Key Stats</a></li>
                 <li><a asp-controller="Home" asp-action="Privacy" class="text-neutral-600 hover:text-black">Privacy</a></li>
             </ul>
+            <div class="px-4 pb-3">
+                @await Html.PartialAsync("_LoginPartial")
+            </div>
         </div>
     </header>
 

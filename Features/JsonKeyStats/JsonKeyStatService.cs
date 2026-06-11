@@ -7,7 +7,7 @@ public interface IJsonKeyStatService
     Task<IEnumerable<JsonKeyStat>> GetAllActiveAsync();
     Task<JsonKeyStat?> GetByIdAsync(int id);
     Task<JsonKeyStat?> GetByKeyAsync(string key);
-    Task CreateAsync(string key, int occurrences = 1);
+    Task<JsonKeyStat> CreateAsync(string key, int occurrences = 1);
     Task IncrementAsync(string key);
     Task TrackKeysAsync(IEnumerable<string> keys);
     Task UpdateAsync(int id, string key, int occurrences);
@@ -32,14 +32,17 @@ public class JsonKeyStatService : IJsonKeyStatService
     public Task<JsonKeyStat?> GetByKeyAsync(string key) =>
         _repository.GetByKeyAsync(key);
 
-    public async Task CreateAsync(string key, int occurrences = 1)
+    public async Task<JsonKeyStat> CreateAsync(string key, int occurrences = 1)
     {
-        await _repository.AddAsync(new JsonKeyStat
+        var entity = new JsonKeyStat
         {
             Key = key,
             Occurrences = occurrences,
             ValidFrom = DateTime.UtcNow
-        });
+        };
+
+        await _repository.AddAsync(entity);
+        return entity;
     }
 
     public async Task IncrementAsync(string key)

@@ -1,4 +1,6 @@
+using cesar.Features.Identity;
 using cesar.Features.JsonKeyStats.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cesar.Features.JsonKeyStats;
@@ -15,7 +17,8 @@ public class JsonKeyStatApiController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(string? q = null)
+    [AllowAnonymous]
+    public async Task<ActionResult<IEnumerable<JsonKeyStatDto>>> GetAll(string? q = null)
     {
         var stats = await _service.GetAllActiveAsync();
         if (!string.IsNullOrWhiteSpace(q))
@@ -23,43 +26,39 @@ public class JsonKeyStatApiController : ControllerBase
             stats = stats.Where(s => s.Key.Contains(q, StringComparison.OrdinalIgnoreCase));
         }
 
-        return Ok(stats.Select(s => new JsonKeyStatViewModel
-        {
-            Id = s.Id,
-            Key = s.Key,
-            Occurrences = s.Occurrences,
-            ValidFrom = s.ValidFrom
-        }));
+        return Ok(stats.Select(ToDto));
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    [AllowAnonymous]
+    public async Task<ActionResult<JsonKeyStatDto>> GetById(int id)
     {
         var entity = await _service.GetByIdAsync(id);
-        if (entity is null) return NotFound();
+        if (entity is null || entity.ValidTo is not null) return NotFound();
 
-        return Ok(new JsonKeyStatViewModel { Id = entity.Id, Key = entity.Key, Occurrences = entity.Occurrences, ValidFrom = entity.ValidFrom });
+        return Ok(ToDto(entity));
     }
 
     [HttpGet("key/{key}")]
-    public async Task<IActionResult> GetByKey(string key)
+    [AllowAnonymous]
+    public async Task<ActionResult<JsonKeyStatDto>> GetByKey(string key)
     {
         var entity = await _service.GetByKeyAsync(key);
         if (entity is null) return NotFound();
 
-        return Ok(new JsonKeyStatViewModel { Id = entity.Id, Key = entity.Key, Occurrences = entity.Occurrences, ValidFrom = entity.ValidFrom });
+        return Ok(ToDto(entity));
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateJsonKeyStatModel model)
+    [Authorize(Roles = AppRoles.AdminOrManager)]
+    public async Task<ActionResult<JsonKeyStatDto>> Create([FromBody] CreateJsonKeyStatModel model)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-
-        await _service.CreateAsync(model.Key, model.Occurrences);
-        return Created(string.Empty, new { message = "Key stat created." });
+        var entity = await _service.CreateAsync(model.Key, model.Occurrences);
+        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, ToDto(entity));
     }
 
     [HttpPost("track")]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Track([FromBody] IEnumerable<string> keys)
     {
         await _service.TrackKeysAsync(keys);
@@ -67,6 +66,7 @@ public class JsonKeyStatApiController : ControllerBase
     }
 
     [HttpPost("increment/{key}")]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Increment(string key)
     {
         await _service.IncrementAsync(key);
@@ -74,18 +74,40 @@ public class JsonKeyStatApiController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] EditJsonKeyStatModel model)
+    [Authorize(Roles = AppRoles.AdminOrManager)]
+    public async Task<ActionResult<JsonKeyStatDto>> Update(int id, [FromBody] EditJsonKeyStatModel model)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (model.Id != 0 && model.Id != id)
+            return BadRequest(new { error = "Route id and body id must match." });
+
+        var existing = await _service.GetByIdAsync(id);
+        if (existing is null || existing.ValidTo is not null)
+            return NotFound();
 
         await _service.UpdateAsync(id, model.Key, model.Occurrences);
-        return Ok(new { message = "Updated." });
+
+        var updated = await _service.GetByIdAsync(id);
+        return Ok(ToDto(updated!));
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = AppRoles.Admin)]
     public async Task<IActionResult> Delete(int id)
     {
+        var existing = await _service.GetByIdAsync(id);
+        if (existing is null || existing.ValidTo is not null)
+            return NotFound();
+
         await _service.SoftDeleteAsync(id);
-        return Ok(new { message = "Soft deleted." });
+        return NoContent();
     }
+
+    private static JsonKeyStatDto ToDto(Entities.JsonKeyStat stat) =>
+        new()
+        {
+            Id = stat.Id,
+            Key = stat.Key,
+            Occurrences = stat.Occurrences,
+            ValidFrom = stat.ValidFrom
+        };
 }

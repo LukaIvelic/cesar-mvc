@@ -1,0 +1,21 @@
+@using cesar.Features.Identity.Entities
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="flex items-center gap-3 text-sm">
+        <span class="text-neutral-500 truncate max-w-[180px]">@User.Identity?.Name</span>
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            <button type="submit" class="text-neutral-600 hover:text-black transition">Logout</button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="flex items-center gap-3 text-sm">
+        <a asp-controller="Account" asp-action="Login" class="text-neutral-600 hover:text-black transition">Login</a>
+        <a asp-controller="Account" asp-action="Register" class="bg-black text-white px-3 py-1.5 rounded hover:bg-neutral-800 transition">Register</a>
+    </div>
+}

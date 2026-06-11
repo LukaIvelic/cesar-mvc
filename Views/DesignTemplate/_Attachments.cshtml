@@ -1,0 +1,25 @@
+@model IEnumerable<cesar.Features.DesignTemplates.Models.DesignTemplateAttachmentDto>
+
+@if (!Model.Any())
+{
+    <p class="text-sm text-neutral-500">No files uploaded.</p>
+}
+else
+{
+    <div class="border border-[#d0d0d0] rounded divide-y divide-[#d0d0d0]">
+        @foreach (var attachment in Model)
+        {
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-3 py-3 text-sm">
+                <div class="min-w-0">
+                    <a href="@attachment.FilePath" target="_blank" class="font-medium text-blue-600 hover:underline break-all">@attachment.FileName</a>
+                    <p class="text-xs text-neutral-500">@attachment.ContentType - @attachment.FileSize bytes - @attachment.CreatedAt.ToString("yyyy-MM-dd HH:mm") UTC</p>
+                </div>
+                <button type="button"
+                        class="attachment-delete border border-[#d0d0d0] px-3 py-1.5 rounded text-sm hover:bg-neutral-100"
+                        data-attachment-id="@attachment.Id">
+                    Delete
+                </button>
+            </div>
+        }
+    </div>
+}

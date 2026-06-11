@@ -1,6 +1,8 @@
 using cesar.Extensions;
+using cesar.Features.Identity;
 using cesar.Features.LeadIntelligence.Models;
 using cesar.Features.RawLead;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cesar.Features.LeadIntelligence;
@@ -16,6 +18,7 @@ public class LeadIntelligenceController : Controller
         _rawLeadService = rawLeadService;
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
         this.SetCurrentPage("Intelligence");
@@ -23,6 +26,7 @@ public class LeadIntelligenceController : Controller
         return View(ToViewModels(records));
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Search(string? q)
     {
         var records = await _service.GetAllActiveAsync();
@@ -39,6 +43,7 @@ public class LeadIntelligenceController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public IActionResult Create()
     {
         this.SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ("Create", "LeadIntelligence", nameof(Create)));
@@ -46,6 +51,7 @@ public class LeadIntelligenceController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Create(CreateLeadIntelligenceModel model)
     {
         await ValidateLeadAsync(model.LeadId);
@@ -62,6 +68,7 @@ public class LeadIntelligenceController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Analyze(CreateLeadIntelligenceModel model, CancellationToken cancellationToken)
     {
         ModelState.Remove(nameof(CreateLeadIntelligenceModel.ContentHash));
@@ -92,6 +99,7 @@ public class LeadIntelligenceController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Edit(int id)
     {
         this.SetBreadcrumbs(("Intelligence", "LeadIntelligence", nameof(Index)), ($"Edit #{id}", "LeadIntelligence", nameof(Edit)));
@@ -110,6 +118,7 @@ public class LeadIntelligenceController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Edit(EditLeadIntelligenceModel model)
     {
         await ValidateLeadAsync(model.LeadId);
@@ -126,6 +135,7 @@ public class LeadIntelligenceController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.Admin)]
     public async Task<IActionResult> Delete(int id)
     {
         await _service.SoftDeleteAsync(id);

@@ -11,7 +11,7 @@ public interface ILeadIntelligenceService
     Task<IEnumerable<LeadIntelligence>> GetAllActiveAsync();
     Task<LeadIntelligence?> GetByIdAsync(int id);
     Task<LeadIntelligence?> GetByContentHashAsync(string contentHash);
-    Task CreateAsync(int leadId, string contentHash, double familiarityIndex, double dataDensityScore);
+    Task<LeadIntelligence> CreateAsync(int leadId, string contentHash, double familiarityIndex, double dataDensityScore);
     Task<LeadIntelligence> AnalyzeLeadAsync(int leadId, CancellationToken cancellationToken = default);
     Task UpdateAsync(int id, int leadId, string contentHash, double familiarityIndex, double dataDensityScore);
     Task SoftDeleteAsync(int id);
@@ -43,12 +43,12 @@ public class LeadIntelligenceService : ILeadIntelligenceService
     public Task<LeadIntelligence?> GetByContentHashAsync(string contentHash) =>
         _repository.GetByContentHashAsync(contentHash);
 
-    public async Task CreateAsync(int leadId, string contentHash, double familiarityIndex, double dataDensityScore)
+    public async Task<LeadIntelligence> CreateAsync(int leadId, string contentHash, double familiarityIndex, double dataDensityScore)
     {
         await EnsureActiveLeadAsync(leadId);
 
         var now = DateTime.UtcNow;
-        await _repository.AddAsync(new LeadIntelligence
+        var entity = new LeadIntelligence
         {
             LeadId = leadId,
             ContentHash = contentHash,
@@ -56,7 +56,10 @@ public class LeadIntelligenceService : ILeadIntelligenceService
             DataDensityScore = dataDensityScore,
             LastAnalyzedAt = now,
             ValidFrom = now
-        });
+        };
+
+        await _repository.AddAsync(entity);
+        return entity;
     }
 
     public async Task<LeadIntelligence> AnalyzeLeadAsync(int leadId, CancellationToken cancellationToken = default)

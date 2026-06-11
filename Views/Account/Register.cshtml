@@ -1,0 +1,50 @@
+@model cesar.Features.Identity.Models.RegisterModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="max-w-md mx-auto px-4 py-8">
+    <h2 class="text-2xl font-semibold mb-6">Register</h2>
+
+    <form asp-action="Register" method="post" class="flex flex-col gap-4">
+        <input type="hidden" asp-for="ReturnUrl" />
+        <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm"></div>
+
+        <div>
+            <label asp-for="Email" class="block text-sm font-medium mb-1"></label>
+            <input asp-for="Email" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" />
+            <span asp-validation-for="Email" class="text-red-500 text-xs mt-1 block"></span>
+        </div>
+
+        <div>
+            <label asp-for="OIB" class="block text-sm font-medium mb-1"></label>
+            <input asp-for="OIB" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" />
+            <span asp-validation-for="OIB" class="text-red-500 text-xs mt-1 block"></span>
+        </div>
+
+        <div>
+            <label asp-for="JMBG" class="block text-sm font-medium mb-1"></label>
+            <input asp-for="JMBG" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" />
+            <span asp-validation-for="JMBG" class="text-red-500 text-xs mt-1 block"></span>
+        </div>
+
+        <div>
+            <label asp-for="Password" class="block text-sm font-medium mb-1"></label>
+            <input asp-for="Password" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" />
+            <span asp-validation-for="Password" class="text-red-500 text-xs mt-1 block"></span>
+        </div>
+
+        <div>
+            <label asp-for="ConfirmPassword" class="block text-sm font-medium mb-1"></label>
+            <input asp-for="ConfirmPassword" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" />
+            <span asp-validation-for="ConfirmPassword" class="text-red-500 text-xs mt-1 block"></span>
+        </div>
+
+        <button type="submit" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">Create account</button>
+    </form>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

@@ -8,7 +8,7 @@ public interface IDesignTemplateService
 {
     Task<IEnumerable<DesignTemplate>> GetAllActiveAsync();
     Task<DesignTemplate?> GetByIdAsync(int id);
-    Task CreateAsync(string name, ContentType contentType, string htmlMarkup, string placeholderSchema);
+    Task<DesignTemplate> CreateAsync(string name, ContentType contentType, string htmlMarkup, string placeholderSchema);
     Task UpdateAsync(int id, string name, ContentType contentType, string htmlMarkup, string placeholderSchema);
     Task SoftDeleteAsync(int id);
     string RenderMarkup(string htmlMarkup, string rawJsonData);
@@ -30,16 +30,19 @@ public class DesignTemplateService : IDesignTemplateService
     public Task<DesignTemplate?> GetByIdAsync(int id) =>
         _repository.GetByIdAsync(id);
 
-    public async Task CreateAsync(string name, ContentType contentType, string htmlMarkup, string placeholderSchema)
+    public async Task<DesignTemplate> CreateAsync(string name, ContentType contentType, string htmlMarkup, string placeholderSchema)
     {
-        await _repository.AddAsync(new DesignTemplate
+        var entity = new DesignTemplate
         {
             Name = name,
             ContentType = contentType,
             HtmlMarkup = htmlMarkup,
             PlaceholderSchema = placeholderSchema,
             ValidFrom = DateTime.UtcNow
-        });
+        };
+
+        await _repository.AddAsync(entity);
+        return entity;
     }
 
     public async Task UpdateAsync(int id, string name, ContentType contentType, string htmlMarkup, string placeholderSchema)

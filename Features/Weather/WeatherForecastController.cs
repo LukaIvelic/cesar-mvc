@@ -1,6 +1,8 @@
 using cesar.Extensions;
+using cesar.Features.Identity;
 using cesar.Features.Weather.Entities;
 using cesar.Features.Weather.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cesar.Features.Weather;
@@ -14,6 +16,7 @@ public class WeatherForecastController : Controller
         _weatherService = weatherService;
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
         this.SetCurrentPage("Weather");
@@ -21,6 +24,7 @@ public class WeatherForecastController : Controller
         return View(ToViewModels(forecasts));
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Search(string? q)
     {
         var forecasts = await _weatherService.GetAllForecastsAsync();
@@ -37,12 +41,14 @@ public class WeatherForecastController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public IActionResult Create()
     {
         return View(new CreateWeatherForecastModel());
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Create(CreateWeatherForecastModel model)
     {
         if (!ModelState.IsValid)
@@ -60,6 +66,7 @@ public class WeatherForecastController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Edit(int id)
     {
         var forecast = await _weatherService.GetForecastByIdAsync(id);
@@ -75,6 +82,7 @@ public class WeatherForecastController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Edit(EditWeatherForecastModel model)
     {
         if (!ModelState.IsValid)
@@ -90,6 +98,7 @@ public class WeatherForecastController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.Admin)]
     public async Task<IActionResult> Delete(int id)
     {
         await _weatherService.DeleteForecastAsync(id);

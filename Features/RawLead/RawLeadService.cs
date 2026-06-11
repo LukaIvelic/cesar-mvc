@@ -10,7 +10,7 @@ public interface IRawLeadService
     Task<IEnumerable<RawLead>> GetAllActiveAsync();
     Task<IEnumerable<RawLead>> SearchActiveAsync(string term, int take = 10);
     Task<RawLead?> GetByIdAsync(int id);
-    Task CreateAsync(string sourceSystem, string externalId, string rawJson);
+    Task<RawLead> CreateAsync(string sourceSystem, string externalId, string rawJson);
     Task CreateBulkAsync(IEnumerable<(string SourceSystem, string ExternalId, string RawJson)> leads);
     Task UpdateAsync(int id, string sourceSystem, string externalId, string rawJson);
     Task SoftDeleteAsync(int id);
@@ -36,21 +36,25 @@ public class RawLeadService : IRawLeadService
     public Task<RawLead?> GetByIdAsync(int id) =>
         _repository.GetByIdAsync(id);
 
-    public async Task CreateAsync(string sourceSystem, string externalId, string rawJson)
+    public async Task<RawLead> CreateAsync(string sourceSystem, string externalId, string rawJson)
     {
         var now = DateTime.UtcNow;
-        await _repository.AddAsync(new RawLead
+        var entity = new RawLead
         {
             SourceSystem = sourceSystem,
             ExternalId = externalId,
             RawJsonData = rawJson,
             IngestedAt = now,
             ValidFrom = now
-        });
+        };
+
+        await _repository.AddAsync(entity);
 
         var keys = ExtractKeys(rawJson);
         if (keys.Any())
             await _keyStatService.TrackKeysAsync(keys);
+
+        return entity;
     }
 
     public async Task CreateBulkAsync(IEnumerable<(string SourceSystem, string ExternalId, string RawJson)> leads)

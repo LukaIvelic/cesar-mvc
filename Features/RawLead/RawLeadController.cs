@@ -1,5 +1,7 @@
 using cesar.Extensions;
+using cesar.Features.Identity;
 using cesar.Features.RawLead.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -15,6 +17,7 @@ public class RawLeadController : Controller
         _service = service;
     }
 
+    [AllowAnonymous]
     [Route("")]
     public async Task<IActionResult> Index()
     {
@@ -25,6 +28,7 @@ public class RawLeadController : Controller
 
     [HttpGet]
     [Route("search")]
+    [AllowAnonymous]
     public async Task<IActionResult> Search(string? q)
     {
         var leads = string.IsNullOrWhiteSpace(q)
@@ -35,6 +39,7 @@ public class RawLeadController : Controller
     }
 
     [Route("{id:int}")]
+    [Authorize]
     public async Task<IActionResult> Detail(int id)
     {
         this.SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ($"#{id}", "RawLead", nameof(Detail)));
@@ -55,6 +60,7 @@ public class RawLeadController : Controller
 
     [HttpGet]
     [Route("create")]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public IActionResult Create()
     {
         this.SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ("Create", "RawLead", nameof(Create)));
@@ -63,6 +69,7 @@ public class RawLeadController : Controller
 
     [HttpPost]
     [Route("create")]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Create(CreateRawLeadModel model)
     {
         if (!ModelState.IsValid)
@@ -84,6 +91,7 @@ public class RawLeadController : Controller
 
     [HttpGet]
     [Route("{id:int}/edit")]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Edit(int id)
     {
         this.SetBreadcrumbs(("Raw Leads", "RawLead", nameof(Index)), ($"Edit #{id}", "RawLead", nameof(Edit)));
@@ -101,6 +109,7 @@ public class RawLeadController : Controller
 
     [HttpPost]
     [Route("{id:int}/edit")]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Edit(EditRawLeadModel model)
     {
         if (!ModelState.IsValid)
@@ -122,6 +131,7 @@ public class RawLeadController : Controller
 
     [HttpPost]
     [Route("{id:int}/delete")]
+    [Authorize(Roles = AppRoles.Admin)]
     public async Task<IActionResult> Delete(int id)
     {
         await _service.SoftDeleteAsync(id);

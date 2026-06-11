@@ -26,10 +26,15 @@ public class LeadIntelligenceRepository : ILeadIntelligenceRepository
     }
 
     public async Task<IEnumerable<LeadIntelligence>> GetAllActiveAsync() =>
-        await _context.LeadIntelligences.Where(l => l.ValidTo == null).ToListAsync();
+        await _context.LeadIntelligences
+            .Include(l => l.Lead)
+            .Where(l => l.ValidTo == null)
+            .ToListAsync();
 
     public async Task<LeadIntelligence?> GetByIdAsync(int id) =>
-        await _context.LeadIntelligences.FindAsync(id);
+        await _context.LeadIntelligences
+            .Include(l => l.Lead)
+            .FirstOrDefaultAsync(l => l.Id == id);
 
     public async Task<LeadIntelligence?> GetByLeadIdAsync(int leadId) =>
         await _context.LeadIntelligences

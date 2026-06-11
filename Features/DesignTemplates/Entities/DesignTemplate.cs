@@ -18,4 +18,5 @@ public class DesignTemplate
     public ContentType ContentType { get; set; }
     public DateTime ValidFrom { get; set; }
     public DateTime? ValidTo { get; set; }
+    public virtual ICollection<DesignTemplateAttachment> Attachments { get; set; } = new List<DesignTemplateAttachment>();
 }

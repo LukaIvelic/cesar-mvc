@@ -6,7 +6,7 @@ public interface IWeatherService
 {
     Task<IEnumerable<WeatherForecast>> GetAllForecastsAsync();
     Task<WeatherForecast?> GetForecastByIdAsync(int id);
-    Task AddForecastAsync(WeatherForecast forecast);
+    Task<WeatherForecast> AddForecastAsync(WeatherForecast forecast);
     Task UpdateForecastAsync(int id, DateOnly date, int temperatureC, string? summary);
     Task DeleteForecastAsync(int id);
 }
@@ -26,8 +26,11 @@ public class WeatherService : IWeatherService
     public Task<WeatherForecast?> GetForecastByIdAsync(int id) =>
         _repository.GetByIdAsync(id);
 
-    public Task AddForecastAsync(WeatherForecast forecast) =>
-        _repository.AddAsync(forecast);
+    public async Task<WeatherForecast> AddForecastAsync(WeatherForecast forecast)
+    {
+        await _repository.AddAsync(forecast);
+        return forecast;
+    }
 
     public async Task UpdateForecastAsync(int id, DateOnly date, int temperatureC, string? summary)
     {

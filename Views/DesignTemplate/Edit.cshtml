@@ -71,6 +71,21 @@
             <p class="text-xs text-neutral-500">Preview uses <span class="font-mono">{{key}}</span> and <span class="font-mono">{{parent.child}}</span> placeholders.</p>
         </div>
     </form>
+
+    <section class="mt-8 border-t border-[#d0d0d0] pt-6">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-semibold">Files</h3>
+            <input id="attachment-input" type="file" multiple class="hidden" />
+        </div>
+
+        <div id="attachment-dropzone"
+             class="border border-dashed border-[#a8a8a8] rounded p-6 text-center text-sm text-neutral-600 cursor-pointer hover:bg-neutral-50 transition">
+            Drop files here or click to upload
+        </div>
+
+        <p id="attachment-status" class="text-sm text-neutral-500 mt-3"></p>
+        <div id="attachment-list" class="mt-4"></div>
+    </section>
 </div>
 
 @section Scripts {
@@ -125,6 +140,82 @@
             target.addEventListener('input', renderPreview);
             markup.addEventListener('input', renderPreview);
             renderPreview();
+        })();
+
+        (function () {
+            const input = document.getElementById('attachment-input');
+            const dropzone = document.getElementById('attachment-dropzone');
+            const list = document.getElementById('attachment-list');
+            const status = document.getElementById('attachment-status');
+            const listUrl = '@Url.Action("GetAttachments", "DesignTemplate", new { templateId = Model.Id })';
+            const uploadUrl = '@Url.Action("UploadAttachment", "DesignTemplate", new { templateId = Model.Id })';
+            const deleteUrl = '@Url.Action("DeleteAttachment", "DesignTemplate")';
+
+            async function loadAttachments() {
+                const response = await fetch(listUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                list.innerHTML = await response.text();
+            }
+
+            async function uploadFiles(files) {
+                if (!files || files.length === 0) return;
+
+                status.textContent = 'Uploading...';
+                for (const file of files) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    const response = await fetch(uploadUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        status.textContent = 'Upload failed.';
+                        return;
+                    }
+                }
+
+                status.textContent = 'Upload complete.';
+                input.value = '';
+                await loadAttachments();
+            }
+
+            dropzone.addEventListener('click', function () {
+                input.click();
+            });
+
+            dropzone.addEventListener('dragover', function (event) {
+                event.preventDefault();
+                dropzone.classList.add('bg-neutral-50');
+            });
+
+            dropzone.addEventListener('dragleave', function () {
+                dropzone.classList.remove('bg-neutral-50');
+            });
+
+            dropzone.addEventListener('drop', function (event) {
+                event.preventDefault();
+                dropzone.classList.remove('bg-neutral-50');
+                uploadFiles(event.dataTransfer.files);
+            });
+
+            input.addEventListener('change', function () {
+                uploadFiles(input.files);
+            });
+
+            list.addEventListener('click', async function (event) {
+                const button = event.target.closest('.attachment-delete');
+                if (!button) return;
+
+                const id = button.getAttribute('data-attachment-id');
+                const response = await fetch(`${deleteUrl}?id=${encodeURIComponent(id)}`, { method: 'POST' });
+                status.textContent = response.ok ? 'File deleted.' : 'Delete failed.';
+                if (response.ok) {
+                    await loadAttachments();
+                }
+            });
+
+            loadAttachments();
         })();
     </script>
 }

@@ -24,12 +24,15 @@ public class DesignTemplateRepository : IDesignTemplateRepository
 
     public async Task<IEnumerable<DesignTemplate>> GetAllActiveAsync() =>
         await _context.DesignTemplates
+            .Include(t => t.Attachments)
             .Where(t => t.ValidTo == null)
             .OrderByDescending(t => t.Id)
             .ToListAsync();
 
     public async Task<DesignTemplate?> GetByIdAsync(int id) =>
-        await _context.DesignTemplates.FindAsync(id);
+        await _context.DesignTemplates
+            .Include(t => t.Attachments)
+            .FirstOrDefaultAsync(t => t.Id == id);
 
     public async Task AddAsync(DesignTemplate template)
     {

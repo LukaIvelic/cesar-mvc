@@ -1,7 +1,11 @@
+using cesar.Data;
 using cesar.Extensions;
 using cesar.Features.DesignTemplates.Models;
+using cesar.Features.Identity;
 using cesar.Features.RawLead;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace cesar.Features.DesignTemplates;
@@ -10,13 +14,22 @@ public class DesignTemplateController : Controller
 {
     private readonly IDesignTemplateService _service;
     private readonly IRawLeadService _rawLeadService;
+    private readonly AppDbContext _dbContext;
+    private readonly IWebHostEnvironment _environment;
 
-    public DesignTemplateController(IDesignTemplateService service, IRawLeadService rawLeadService)
+    public DesignTemplateController(
+        IDesignTemplateService service,
+        IRawLeadService rawLeadService,
+        AppDbContext dbContext,
+        IWebHostEnvironment environment)
     {
         _service = service;
         _rawLeadService = rawLeadService;
+        _dbContext = dbContext;
+        _environment = environment;
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
         this.SetCurrentPage("Design Templates");
@@ -24,6 +37,7 @@ public class DesignTemplateController : Controller
         return View(ToViewModels(templates));
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Search(string? q)
     {
         var templates = await _service.GetAllActiveAsync();
@@ -40,6 +54,7 @@ public class DesignTemplateController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Create()
     {
         this.SetBreadcrumbs(("Design Templates", "DesignTemplate", nameof(Index)), ("Create", "DesignTemplate", nameof(Create)));
@@ -52,6 +67,7 @@ public class DesignTemplateController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Create(CreateDesignTemplateModel model)
     {
         if (!ModelState.IsValid)
@@ -82,6 +98,7 @@ public class DesignTemplateController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Edit(int id)
     {
         this.SetBreadcrumbs(("Design Templates", "DesignTemplate", nameof(Index)), ($"Edit #{id}", "DesignTemplate", nameof(Edit)));
@@ -101,6 +118,7 @@ public class DesignTemplateController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public async Task<IActionResult> Edit(EditDesignTemplateModel model)
     {
         if (!ModelState.IsValid)
@@ -131,13 +149,92 @@ public class DesignTemplateController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.Admin)]
     public async Task<IActionResult> Delete(int id)
     {
         await _service.SoftDeleteAsync(id);
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
+    public async Task<IActionResult> UploadAttachment(int templateId, IFormFile file)
+    {
+        var template = await _service.GetByIdAsync(templateId);
+        if (template is null || template.ValidTo is not null)
+        {
+            return NotFound();
+        }
+
+        if (file is null || file.Length == 0)
+        {
+            return BadRequest(new { error = "Select a file to upload." });
+        }
+
+        var uploadsPath = Path.Combine(WebRootPath, "uploads", "design-templates", templateId.ToString());
+        Directory.CreateDirectory(uploadsPath);
+
+        var storedFileName = $"{Guid.NewGuid():N}{Path.GetExtension(file.FileName)}";
+        var absolutePath = Path.Combine(uploadsPath, storedFileName);
+
+        await using (var stream = new FileStream(absolutePath, FileMode.CreateNew))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        var attachment = new Entities.DesignTemplateAttachment
+        {
+            DesignTemplateId = templateId,
+            FileName = Path.GetFileName(file.FileName),
+            FilePath = $"/uploads/design-templates/{templateId}/{storedFileName}",
+            ContentType = string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType,
+            FileSize = file.Length,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _dbContext.DesignTemplateAttachments.Add(attachment);
+        await _dbContext.SaveChangesAsync();
+
+        return Json(ToAttachmentDto(attachment));
+    }
+
     [HttpGet]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
+    public async Task<IActionResult> GetAttachments(int templateId)
+    {
+        var attachments = await _dbContext.DesignTemplateAttachments
+            .Where(a => a.DesignTemplateId == templateId)
+            .OrderByDescending(a => a.CreatedAt)
+            .ToListAsync();
+
+        return PartialView("_Attachments", attachments.Select(ToAttachmentDto));
+    }
+
+    [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
+    public async Task<IActionResult> DeleteAttachment(int id)
+    {
+        var attachment = await _dbContext.DesignTemplateAttachments.FindAsync(id);
+        if (attachment is null)
+        {
+            return NotFound();
+        }
+
+        var relativePath = attachment.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+        var absolutePath = Path.Combine(WebRootPath, relativePath);
+        if (System.IO.File.Exists(absolutePath))
+        {
+            System.IO.File.Delete(absolutePath);
+        }
+
+        _dbContext.DesignTemplateAttachments.Remove(attachment);
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(new { success = true });
+    }
+
+    [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Preview(int id, string? previewRawJsonData = null)
     {
         this.SetBreadcrumbs(("Design Templates", "DesignTemplate", nameof(Index)), ($"Preview #{id}", "DesignTemplate", nameof(Preview)));
@@ -164,6 +261,7 @@ public class DesignTemplateController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Preview(int id, PreviewDesignTemplateModel model)
     {
         this.SetBreadcrumbs(("Design Templates", "DesignTemplate", nameof(Index)), ($"Preview #{id}", "DesignTemplate", nameof(Preview)));
@@ -187,6 +285,7 @@ public class DesignTemplateController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = AppRoles.AdminOrManager)]
     public IActionResult PreviewDraft(string htmlMarkup, string previewRawJsonData)
     {
         var rendered = IsValidJson(previewRawJsonData)
@@ -226,4 +325,19 @@ public class DesignTemplateController : Controller
             PlaceholderSchema = t.PlaceholderSchema,
             PreviewHtml = _service.RenderMarkup(t.HtmlMarkup, t.PlaceholderSchema)
         });
+
+    private string WebRootPath =>
+        _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+    private static DesignTemplateAttachmentDto ToAttachmentDto(Entities.DesignTemplateAttachment attachment) =>
+        new()
+        {
+            Id = attachment.Id,
+            DesignTemplateId = attachment.DesignTemplateId,
+            FileName = attachment.FileName,
+            FilePath = attachment.FilePath,
+            ContentType = attachment.ContentType,
+            FileSize = attachment.FileSize,
+            CreatedAt = attachment.CreatedAt
+        };
 }
