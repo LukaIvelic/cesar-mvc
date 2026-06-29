@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <DefaultItemExcludes>$(DefaultItemExcludes);cesar.Tests\**</DefaultItemExcludes>
+    <UserSecretsId>cesar-mvc-local-secrets</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

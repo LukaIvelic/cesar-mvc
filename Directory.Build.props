@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <ArtifactsPath>$(TEMP)\cesar-mvc-artifacts</ArtifactsPath>
+  </PropertyGroup>
+</Project>

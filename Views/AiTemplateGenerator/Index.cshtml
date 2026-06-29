@@ -1,0 +1,453 @@
+@model cesar.Features.AiTemplateGenerator.Models.AiTemplateGeneratorViewModel
+@using cesar.Features.DesignTemplates.Entities
+@using System.Text.Json
+
+@{
+    var leadPayload = Model.RawLeadOptions.Select(option => new
+    {
+        id = option.Id,
+        label = option.Label,
+        rawJsonData = option.RawJsonData
+    });
+}
+
+<style>
+    .ai-field-list {
+        display: grid;
+        max-height: 340px;
+        gap: 8px;
+        overflow: auto;
+        border: 1px solid var(--app-border);
+        border-radius: 7px;
+        background: var(--app-surface-muted);
+        padding: 10px;
+    }
+
+    .ai-field-option {
+        display: grid;
+        grid-template-columns: 18px minmax(0, 1fr);
+        gap: 9px;
+        align-items: flex-start;
+        border: 1px solid var(--app-border);
+        border-radius: 7px;
+        background: #ffffff;
+        padding: 9px 10px;
+        cursor: pointer;
+    }
+
+    .ai-field-option:hover {
+        border-color: var(--app-border-strong);
+        background: var(--app-surface);
+    }
+
+    .ai-field-option input {
+        margin-top: 3px;
+    }
+
+    .ai-field-option span {
+        display: grid;
+        min-width: 0;
+        gap: 3px;
+    }
+
+    .ai-field-option code {
+        color: var(--app-text);
+        font-size: 12px;
+        overflow-wrap: anywhere;
+    }
+
+    .ai-field-option small {
+        color: var(--app-muted);
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ai-data-preview,
+    .ai-generated-preview {
+        min-height: 220px;
+        max-height: 420px;
+        overflow: auto;
+        white-space: pre-wrap;
+    }
+
+    .ai-html-preview {
+        width: 100%;
+        min-height: 430px;
+        border: 1px solid var(--app-border);
+        border-radius: 7px;
+        background: #ffffff;
+    }
+</style>
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">AI generation</p>
+            <h2 class="page-title">AI Template Generator</h2>
+            <p class="page-subtitle">Pick raw leads and JSON fields, describe what you need, then generate mail, SMS, message or HTML snippets from database context.</p>
+        </div>
+        <a asp-controller="DesignTemplate" asp-action="Index" class="back-link">Templates</a>
+    </div>
+
+    <form asp-action="Generate" method="post" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="form-panel field-stack">
+            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm"></div>
+
+            <div>
+                <label asp-for="ContentType" class="block text-sm font-medium mb-1">Output Type</label>
+                <select asp-for="ContentType" asp-items="Html.GetEnumSelectList<ContentType>()" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black"></select>
+                <span asp-validation-for="ContentType" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div>
+                    <label asp-for="OutputLanguage" class="block text-sm font-medium mb-1">Language</label>
+                    <input asp-for="OutputLanguage" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" placeholder="Croatian, English..." />
+                    <span asp-validation-for="OutputLanguage" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                <div>
+                    <label asp-for="Tone" class="block text-sm font-medium mb-1">Tone</label>
+                    <input asp-for="Tone" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" placeholder="direct, premium, playful..." />
+                    <span asp-validation-for="Tone" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+            </div>
+
+            <div>
+                <label asp-for="GenerationPrompt" class="block text-sm font-medium mb-1">What should AI generate?</label>
+                <textarea asp-for="GenerationPrompt" rows="14" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black resize-y" placeholder="Example: Generate a short cold email that mentions the lead company, asks for a 15-minute call, and includes one clear CTA."></textarea>
+                <span asp-validation-for="GenerationPrompt" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div class="action-row">
+                <button type="submit" class="btn-primary">Generate</button>
+                <span class="text-xs text-neutral-500">Uses OpenAI when <span class="font-mono">OpenAI:ApiKey</span> is configured.</span>
+            </div>
+        </div>
+
+        <div class="form-panel field-stack">
+            <div>
+                <label for="raw-lead-select" class="block text-sm font-medium mb-1">Raw Leads</label>
+                <select id="raw-lead-select" name="SelectedRawLeadIds" multiple size="9" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black">
+                    @foreach (var option in Model.RawLeadOptions)
+                    {
+                        if (Model.SelectedRawLeadIds.Contains(option.Id))
+                        {
+                            <option value="@option.Id" selected>@option.Label</option>
+                        }
+                        else
+                        {
+                            <option value="@option.Id">@option.Label</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="SelectedRawLeadIds" class="text-red-500 text-xs mt-1 block"></span>
+                <p class="text-xs text-neutral-500 mt-1">Hold Ctrl or Shift to select multiple leads.</p>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between gap-3 mb-2">
+                    <p class="section-label">Database fields</p>
+                    <div class="action-row">
+                        <button id="select-all-fields-btn" type="button" class="btn-secondary">All fields</button>
+                        <button id="clear-fields-btn" type="button" class="btn-ghost">Clear</button>
+                    </div>
+                </div>
+                <div id="field-picker" class="ai-field-list"></div>
+                <p class="text-xs text-neutral-500 mt-2">If no field is selected, the full selected raw JSON is sent to AI.</p>
+            </div>
+
+            <div>
+                <p class="section-label mb-2">Selected data preview</p>
+                <pre id="selected-data-preview" class="code-block ai-data-preview"></pre>
+            </div>
+        </div>
+    </form>
+
+    @if (Model.Result is not null)
+    {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div class="form-panel field-stack">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="section-label mb-1">Generated output</p>
+                        <h3 class="section-title">@Model.Result.Name</h3>
+                    </div>
+                    <span class="badge">@Model.Result.ContentType</span>
+                </div>
+
+                <textarea id="generated-content" readonly rows="18" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black resize-y">@Model.Result.Content</textarea>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Result.Notes))
+                {
+                    <p class="text-xs text-neutral-500">@Model.Result.Notes</p>
+                }
+
+                <div class="action-row">
+                    <button id="copy-generated-btn" type="button" class="btn-secondary">Copy</button>
+                </div>
+            </div>
+
+            <div class="preview-panel field-stack">
+                <div>
+                    <p class="section-label mb-1">Preview</p>
+                    <h3 class="section-title">Rendered Result</h3>
+                </div>
+
+                @if (Model.Result.ContentType == ContentType.HTML)
+                {
+                    <iframe class="ai-html-preview" sandbox="allow-scripts" srcdoc="@Model.Result.Content"></iframe>
+                }
+                else
+                {
+                    <pre class="code-block ai-generated-preview">@Model.Result.Content</pre>
+                }
+            </div>
+        </div>
+
+        <form asp-action="Save" method="post" class="form-panel field-stack mt-6">
+            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm"></div>
+
+            <div>
+                <p class="section-label mb-1">Save generated template</p>
+                <h3 class="section-title">Store in Templates</h3>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div>
+                    <label for="Name" class="block text-sm font-medium mb-1">Template Name</label>
+                    <input id="Name" name="Name" value="@Model.Result.Name" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" />
+                </div>
+                <div>
+                    <label for="save-content-type" class="block text-sm font-medium mb-1">Content Type</label>
+                    <select id="save-content-type" name="ContentType" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black">
+                        @foreach (var contentType in Enum.GetValues<ContentType>())
+                        {
+                            if (contentType == Model.Result.ContentType)
+                            {
+                                <option value="@contentType" selected>@contentType</option>
+                            }
+                            else
+                            {
+                                <option value="@contentType">@contentType</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label for="HtmlMarkup" class="block text-sm font-medium mb-1">Template Content</label>
+                <textarea id="HtmlMarkup" name="HtmlMarkup" rows="10" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black resize-y">@Model.Result.Content</textarea>
+            </div>
+
+            <div>
+                <label for="PlaceholderSchema" class="block text-sm font-medium mb-1">Placeholder Schema</label>
+                <textarea id="PlaceholderSchema" name="PlaceholderSchema" rows="8" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black resize-y">@Model.Result.PlaceholderSchema</textarea>
+            </div>
+
+            <div class="action-row">
+                <button type="submit" class="btn-primary">Save Template</button>
+            </div>
+        </form>
+    }
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        (function () {
+            const leads = @Html.Raw(JsonSerializer.Serialize(leadPayload));
+            const selectedPaths = new Set(@Html.Raw(JsonSerializer.Serialize(Model.SelectedJsonPaths)));
+            const select = document.getElementById('raw-lead-select');
+            const fieldPicker = document.getElementById('field-picker');
+            const preview = document.getElementById('selected-data-preview');
+            const allButton = document.getElementById('select-all-fields-btn');
+            const clearButton = document.getElementById('clear-fields-btn');
+            const copyButton = document.getElementById('copy-generated-btn');
+            const generatedContent = document.getElementById('generated-content');
+
+            function stringifyValue(value) {
+                if (value === null || value === undefined) return null;
+                if (typeof value === 'object') return JSON.stringify(value);
+                return String(value);
+            }
+
+            function flattenJson(value, prefix, result) {
+                if (value === null || typeof value !== 'object') {
+                    if (prefix) result.set(prefix, stringifyValue(value));
+                    return;
+                }
+
+                if (Array.isArray(value)) {
+                    if (!value.length && prefix) result.set(prefix, '[]');
+                    value.forEach(function (item, index) {
+                        flattenJson(item, prefix ? prefix + '.' + index : String(index), result);
+                    });
+                    return;
+                }
+
+                const keys = Object.keys(value);
+                if (!keys.length && prefix) result.set(prefix, '{}');
+                keys.forEach(function (key) {
+                    flattenJson(value[key], prefix ? prefix + '.' + key : key, result);
+                });
+            }
+
+            function selectedLeadIds() {
+                return Array.from(select.selectedOptions).map(function (option) {
+                    return Number(option.value);
+                });
+            }
+
+            function parseLeadJson(lead) {
+                try {
+                    return JSON.parse(lead.rawJsonData || '{}');
+                } catch {
+                    return {};
+                }
+            }
+
+            function selectedLeads() {
+                const ids = new Set(selectedLeadIds());
+                return leads.filter(function (lead) {
+                    return ids.has(lead.id);
+                });
+            }
+
+            function syncVisibleSelectedPaths() {
+                fieldPicker.querySelectorAll('input[data-json-path]').forEach(function (checkbox) {
+                    if (checkbox.checked) {
+                        selectedPaths.add(checkbox.value);
+                    } else {
+                        selectedPaths.delete(checkbox.value);
+                    }
+                });
+            }
+
+            function renderFields() {
+                const pathSamples = new Map();
+
+                selectedLeads().forEach(function (lead) {
+                    const flattened = new Map();
+                    flattenJson(parseLeadJson(lead), '', flattened);
+                    flattened.forEach(function (value, path) {
+                        if (!pathSamples.has(path)) pathSamples.set(path, []);
+                        if (value !== null && pathSamples.get(path).length < 2) {
+                            pathSamples.get(path).push(value);
+                        }
+                    });
+                });
+
+                fieldPicker.innerHTML = '';
+
+                if (!pathSamples.size) {
+                    const empty = document.createElement('p');
+                    empty.className = 'empty-state text-sm';
+                    empty.textContent = 'Select a raw lead to inspect available JSON fields.';
+                    fieldPicker.appendChild(empty);
+                    renderPreview();
+                    return;
+                }
+
+                Array.from(pathSamples.entries())
+                    .sort(function (a, b) { return a[0].localeCompare(b[0]); })
+                    .slice(0, 300)
+                    .forEach(function (entry) {
+                        const path = entry[0];
+                        const samples = entry[1];
+                        const label = document.createElement('label');
+                        const checkbox = document.createElement('input');
+                        const text = document.createElement('span');
+                        const code = document.createElement('code');
+                        const sample = document.createElement('small');
+
+                        label.className = 'ai-field-option';
+                        checkbox.type = 'checkbox';
+                        checkbox.name = 'SelectedJsonPaths';
+                        checkbox.value = path;
+                        checkbox.dataset.jsonPath = path;
+                        checkbox.checked = selectedPaths.has(path);
+
+                        code.textContent = path;
+                        sample.textContent = samples.length ? samples.join(' | ') : '';
+                        text.appendChild(code);
+                        text.appendChild(sample);
+                        label.appendChild(checkbox);
+                        label.appendChild(text);
+                        fieldPicker.appendChild(label);
+                    });
+
+                renderPreview();
+            }
+
+            function readCheckedPaths() {
+                return Array.from(fieldPicker.querySelectorAll('input[data-json-path]:checked')).map(function (checkbox) {
+                    return checkbox.value;
+                });
+            }
+
+            function getPathValue(source, path) {
+                return path.split('.').reduce(function (current, segment) {
+                    if (current === null || current === undefined) return undefined;
+                    return current[segment];
+                }, source);
+            }
+
+            function renderPreview() {
+                const paths = readCheckedPaths();
+                const payload = selectedLeads().map(function (lead) {
+                    const data = parseLeadJson(lead);
+                    const fields = {};
+
+                    paths.forEach(function (path) {
+                        fields[path] = getPathValue(data, path);
+                    });
+
+                    return {
+                        id: lead.id,
+                        label: lead.label,
+                        selectedFields: paths.length ? fields : 'Full raw JSON will be sent.'
+                    };
+                });
+
+                preview.textContent = payload.length
+                    ? JSON.stringify(payload, null, 2)
+                    : 'No raw lead selected.';
+            }
+
+            select.addEventListener('change', renderFields);
+            fieldPicker.addEventListener('change', function (event) {
+                if (event.target.matches('input[data-json-path]')) {
+                    syncVisibleSelectedPaths();
+                    renderPreview();
+                }
+            });
+
+            allButton.addEventListener('click', function () {
+                fieldPicker.querySelectorAll('input[data-json-path]').forEach(function (checkbox) {
+                    checkbox.checked = true;
+                    selectedPaths.add(checkbox.value);
+                });
+                renderPreview();
+            });
+
+            clearButton.addEventListener('click', function () {
+                fieldPicker.querySelectorAll('input[data-json-path]').forEach(function (checkbox) {
+                    checkbox.checked = false;
+                    selectedPaths.delete(checkbox.value);
+                });
+                renderPreview();
+            });
+
+            if (copyButton && generatedContent) {
+                copyButton.addEventListener('click', function () {
+                    navigator.clipboard.writeText(generatedContent.value);
+                });
+            }
+
+            renderFields();
+        })();
+    </script>
+}

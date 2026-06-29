@@ -331,6 +331,19 @@ public class ApiCrudTests
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Fact]
+    public async Task AiTemplateGenerator_ReturnsPageForAuthenticatedUser()
+    {
+        using var factory = new CesarWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/ai-template-generator");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.Contains("AI Template Generator", html);
+    }
+
     private static async Task<RawLeadDto> CreateRawLeadAsync(HttpClient client)
     {
         var response = await client.PostAsJsonAsync("/api/rawleads", new
