@@ -1,0 +1,13 @@
+bin/
+obj/
+node_modules/
+.git/
+.github/
+.vs/
+.idea/
+logs/
+*.log
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+LAST_COMMITS_SUMMARY.md

@@ -1,0 +1,60 @@
+@model cesar.Features.GlobalSearch.GlobalSearchResultSet
+
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Search</p>
+            <h2 class="page-title">Global Search</h2>
+            <p class="page-subtitle">Search navigation, pages and indexed application data from one place.</p>
+        </div>
+    </div>
+
+    <form method="get" action="/search" class="search-panel">
+        <label for="global-search-page-input" class="block text-sm font-medium mb-1">Search workspace</label>
+        <div class="flex gap-2">
+            <input id="global-search-page-input"
+                   name="q"
+                   value="@Model.Query"
+                   type="search"
+                   class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black"
+                   placeholder="Search leads, templates, keys or pages" />
+            <button type="submit" class="btn-primary">Search</button>
+        </div>
+    </form>
+
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Result</th>
+                    <th>Group</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Results.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="empty-cell">No results found.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var result in Model.Results)
+                    {
+                        <tr>
+                            <td><span class="badge">@result.Type</span></td>
+                            <td>
+                                <div class="font-medium">@result.Title</div>
+                                <div class="text-xs text-neutral-500 mt-1">@result.Description</div>
+                            </td>
+                            <td>@result.Group</td>
+                            <td><a href="@result.Url" class="link-primary">Open</a></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

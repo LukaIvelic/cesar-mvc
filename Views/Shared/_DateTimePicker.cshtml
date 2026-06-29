@@ -25,18 +25,18 @@
                data-val="true"
                data-val-required="@requiredMessage" />
         <button type="button"
-                class="border border-[#d0d0d0] px-3 py-2 rounded text-sm hover:bg-neutral-100"
+                class="btn-secondary"
                 data-date-time-toggle>
             Pick
         </button>
     </div>
     <span class="text-red-500 text-xs mt-1 block" data-valmsg-for="@fieldName" data-valmsg-replace="true"></span>
 
-    <div class="absolute z-30 mt-2 w-72 bg-white border border-[#d0d0d0] rounded shadow-sm p-3 hidden" data-date-time-panel>
+    <div class="absolute z-30 mt-2 w-72 bg-white border border-[#d8e0ea] rounded shadow-sm p-3 hidden" data-date-time-panel>
         <div class="flex items-center justify-between mb-3">
-            <button type="button" class="text-sm px-2 py-1 hover:bg-neutral-100 rounded" data-date-time-prev>Prev</button>
+            <button type="button" class="btn-ghost" data-date-time-prev>Prev</button>
             <strong class="text-sm" data-date-time-title></strong>
-            <button type="button" class="text-sm px-2 py-1 hover:bg-neutral-100 rounded" data-date-time-next>Next</button>
+            <button type="button" class="btn-ghost" data-date-time-next>Next</button>
         </div>
         <div class="grid grid-cols-7 gap-1 text-center text-xs text-neutral-500 mb-1">
             <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
@@ -47,7 +47,7 @@
             <input id="@($"{fieldName}_Hour")" type="number" min="0" max="23" class="w-16 border border-[#d0d0d0] rounded px-2 py-1 text-sm" data-date-time-hour />
             <span>:</span>
             <input type="number" min="0" max="59" class="w-16 border border-[#d0d0d0] rounded px-2 py-1 text-sm" data-date-time-minute />
-            <button type="button" class="ml-auto text-sm px-2 py-1 hover:bg-neutral-100 rounded" data-date-time-now>Now</button>
+            <button type="button" class="btn-ghost ml-auto" data-date-time-now>Now</button>
         </div>
     </div>
 </div>

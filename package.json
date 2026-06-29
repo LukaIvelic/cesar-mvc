@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build:css": "node ./node_modules/postcss-cli/index.js ./wwwroot/css/app.css -o ./wwwroot/css/site.css",
-    "watch:css": "node ./node_modules/postcss-cli/index.js ./wwwroot/css/app.css -o ./wwwroot/css/site.css --watch"
+    "build:css": "postcss ./wwwroot/css/app.css -o ./wwwroot/css/site.css",
+    "watch:css": "postcss ./wwwroot/css/app.css -o ./wwwroot/css/site.css --watch"
   },
   "keywords": [],
   "author": "",

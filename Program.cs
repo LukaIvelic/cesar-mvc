@@ -13,6 +13,8 @@ using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.AddCesarFileLogger(builder.Configuration);
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddApplicationServices();
@@ -30,8 +32,8 @@ builder.Services
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
-var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"]?.Trim();
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]?.Trim();
 if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
 {
     builder.Services

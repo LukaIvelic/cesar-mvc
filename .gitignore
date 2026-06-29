@@ -13,6 +13,8 @@ packages/
 appsettings.Development.json
 appsettings.*.json
 !appsettings.json
+logs/
+*.log
 
 # Node
 node_modules/

@@ -1,4 +1,5 @@
 using cesar.Features.AiTemplateGenerator;
+using cesar.Features.GlobalSearch;
 using cesar.Features.JsonKeyStats;
 using cesar.Features.LeadIntelligence;
 using cesar.Features.RawLead;
@@ -18,6 +19,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IJsonKeyStatService, JsonKeyStatService>();
         services.AddScoped<IDesignTemplateService, DesignTemplateService>();
         services.AddHttpClient<IAiTemplateGeneratorService, OpenAiTemplateGeneratorService>();
+        services.AddScoped<IGlobalSearchService, GlobalSearchService>();
         return services;
     }
 }

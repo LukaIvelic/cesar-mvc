@@ -3,7 +3,7 @@
 @if (!Model.Any())
 {
     <tr>
-        <td colspan="4" class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-4 text-sm text-neutral-500">No forecasts found.</td>
+        <td colspan="4" class="empty-cell">No forecasts found.</td>
     </tr>
 }
 else
@@ -11,14 +11,14 @@ else
     @foreach (var forecast in Model)
     {
         <tr>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">@forecast.Date</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">@forecast.TemperatureDisplay</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">@forecast.Summary</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2">
-                <div class="flex gap-3">
-                    <a asp-action="Edit" asp-route-id="@forecast.Id" class="text-neutral-600 hover:underline">Edit</a>
+            <td>@forecast.Date</td>
+            <td>@forecast.TemperatureDisplay</td>
+            <td>@forecast.Summary</td>
+            <td>
+                <div class="action-row">
+                    <a asp-action="Edit" asp-route-id="@forecast.Id" class="link-muted">Edit</a>
                     <form asp-action="Delete" asp-route-id="@forecast.Id" method="post" onsubmit="return confirm('Delete this forecast?')">
-                        <button type="submit" class="text-red-500 hover:underline">Delete</button>
+                        <button type="submit" class="link-danger">Delete</button>
                     </form>
                 </div>
             </td>

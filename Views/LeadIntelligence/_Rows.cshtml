@@ -3,7 +3,7 @@
 @if (!Model.Any())
 {
     <tr>
-        <td colspan="7" class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-4 text-sm text-neutral-500">No intelligence records found.</td>
+        <td colspan="7" class="empty-cell">No intelligence records found.</td>
     </tr>
 }
 else
@@ -12,17 +12,17 @@ else
     {
         var hashPreview = record.ContentHash.Length > 16 ? $"{record.ContentHash[..16]}..." : record.ContentHash;
         <tr>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.Id</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.LeadId</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm font-mono text-xs">@hashPreview</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.FamiliarityIndex.ToString("F3")</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.DataDensityScore.ToString("F3")</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@record.LastAnalyzedAt.ToString("yyyy-MM-dd HH:mm")</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">
-                <div class="flex gap-3">
-                    <a asp-action="Edit" asp-route-id="@record.Id" class="text-neutral-600 hover:underline">Edit</a>
+            <td>@record.Id</td>
+            <td>@record.LeadId</td>
+            <td class="font-mono text-xs">@hashPreview</td>
+            <td>@record.FamiliarityIndex.ToString("F3")</td>
+            <td>@record.DataDensityScore.ToString("F3")</td>
+            <td>@record.LastAnalyzedAt.ToString("yyyy-MM-dd HH:mm")</td>
+            <td>
+                <div class="action-row">
+                    <a asp-action="Edit" asp-route-id="@record.Id" class="link-muted">Edit</a>
                     <form asp-action="Delete" asp-route-id="@record.Id" method="post" onsubmit="return confirm('Soft delete this record?')">
-                        <button type="submit" class="text-red-500 hover:underline">Delete</button>
+                        <button type="submit" class="link-danger">Delete</button>
                     </form>
                 </div>
             </td>

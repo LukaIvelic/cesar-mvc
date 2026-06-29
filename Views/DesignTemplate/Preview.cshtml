@@ -1,29 +1,35 @@
 @model cesar.Features.DesignTemplates.Models.PreviewDesignTemplateModel
 @using System.Text.Json
 
-<div class="max-w-6xl mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold">Preview — @Model.Name</h2>
-        <a asp-action="Index" class="text-sm text-neutral-500 hover:underline">← Back to list</a>
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Template preview</p>
+            <h2 class="page-title">@Model.Name</h2>
+            <p class="page-subtitle">Render saved markup against raw lead JSON values before use.</p>
+        </div>
+        <a asp-action="Index" class="back-link">Back to list</a>
     </div>
 
-    <div class="mb-6 bg-[#fafafa] border border-[#d0d0d0] rounded p-4 text-sm grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-            <span class="text-neutral-500">Template ID</span>
-            <p class="font-medium">@Model.Id</p>
-        </div>
-        <div>
-            <span class="text-neutral-500">Name</span>
-            <p class="font-medium">@Model.Name</p>
-        </div>
-        <div>
-            <span class="text-neutral-500">Content Type</span>
-            <p class="font-medium">@Model.ContentType</p>
+    <div class="detail-panel mb-6">
+        <div class="meta-grid">
+            <div class="meta-item">
+                <span class="meta-label">Template ID</span>
+                <p class="meta-value">@Model.Id</p>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Name</span>
+                <p class="meta-value">@Model.Name</p>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Content Type</span>
+                <p class="meta-value">@Model.ContentType</p>
+            </div>
         </div>
     </div>
 
-    <form asp-action="Preview" asp-route-id="@Model.Id" method="post" class="grid grid-cols-1 gap-8">
-        <div class="flex flex-col gap-4">
+    <form asp-action="Preview" asp-route-id="@Model.Id" method="post" class="grid grid-cols-1 gap-6">
+        <div class="form-panel field-stack">
             <div>
                 <label class="block text-sm font-medium mb-1">Use Raw Lead JSON</label>
                 <div class="flex gap-2">
@@ -34,23 +40,25 @@
                             <option value="@option.Id">@option.Label</option>
                         }
                     </select>
-                    <button id="inject-json-btn" type="button" class="border border-[#d0d0d0] px-3 py-2 rounded text-sm hover:bg-neutral-100">Inject</button>
+                    <button id="inject-json-btn" type="button" class="btn-secondary">Inject</button>
                 </div>
             </div>
 
             <div>
                 <label asp-for="PreviewRawJsonData" class="block text-sm font-medium mb-1">Preview Raw JSON</label>
-                <textarea asp-for="PreviewRawJsonData" rows="16" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black resize-y"></textarea>
+                <textarea asp-for="PreviewRawJsonData" rows="14" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-black resize-y"></textarea>
                 <span asp-validation-for="PreviewRawJsonData" class="text-red-500 text-xs mt-1 block"></span>
             </div>
 
-            <div class="flex gap-3">
-                <button type="submit" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">Render Preview</button>
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="border border-[#d0d0d0] text-sm px-4 py-2 rounded hover:bg-neutral-100 transition">Edit Template</a>
+            <div class="action-row">
+                <button type="submit" class="btn-primary">Render Preview</button>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-secondary">Edit Template</a>
             </div>
+        </div>
 
-            <p class="text-sm text-neutral-500 mb-2">Rendered HTML</p>
-            <div id="injected-preview" class="border border-[#d0d0d0] rounded bg-white p-4 min-h-[420px] overflow-auto">
+        <div>
+            <p class="section-label mb-2">Rendered HTML</p>
+            <div id="injected-preview" class="preview-panel min-h-[420px] overflow-auto">
                 @Html.Raw(Model.RenderedHtml)
             </div>
         </div>

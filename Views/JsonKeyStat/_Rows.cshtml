@@ -3,7 +3,7 @@
 @if (!Model.Any())
 {
     <tr>
-        <td colspan="5" class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-4 text-sm text-neutral-500">No key stats found.</td>
+        <td colspan="5" class="empty-cell">No key stats found.</td>
     </tr>
 }
 else
@@ -11,15 +11,15 @@ else
     @foreach (var stat in Model)
     {
         <tr>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@stat.Id</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm font-mono">@stat.Key</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm font-semibold">@stat.Occurrences</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@stat.ValidFrom.ToString("yyyy-MM-dd HH:mm")</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">
-                <div class="flex gap-3">
-                    <a asp-action="Edit" asp-route-id="@stat.Id" class="text-neutral-600 hover:underline">Edit</a>
+            <td>@stat.Id</td>
+            <td class="font-mono">@stat.Key</td>
+            <td class="font-semibold">@stat.Occurrences</td>
+            <td>@stat.ValidFrom.ToString("yyyy-MM-dd HH:mm")</td>
+            <td>
+                <div class="action-row">
+                    <a asp-action="Edit" asp-route-id="@stat.Id" class="link-muted">Edit</a>
                     <form asp-action="Delete" asp-route-id="@stat.Id" method="post" onsubmit="return confirm('Soft delete this key?')">
-                        <button type="submit" class="text-red-500 hover:underline">Delete</button>
+                        <button type="submit" class="link-danger">Delete</button>
                     </form>
                 </div>
             </td>

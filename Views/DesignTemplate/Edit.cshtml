@@ -1,16 +1,20 @@
 @model cesar.Features.DesignTemplates.Models.EditDesignTemplateModel
 @using System.Text.Json
 
-<div class="max-w-6xl mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold">Edit Template #@Model.Id</h2>
-        <a asp-action="Index" class="text-sm text-neutral-500 hover:underline">← Back to list</a>
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Rendering</p>
+            <h2 class="page-title">Edit Template #@Model.Id</h2>
+            <p class="page-subtitle">Refine markup, validate JSON placeholders, and manage attached files.</p>
+        </div>
+        <a asp-action="Index" class="back-link">Back to list</a>
     </div>
 
-    <form asp-action="Edit" method="post" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <form asp-action="Edit" method="post" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <input type="hidden" asp-for="Id" />
 
-        <div class="flex flex-col gap-6">
+        <div class="form-panel field-stack">
             <div>
                 <label asp-for="Name" class="block text-sm font-medium mb-1">Name</label>
                 <input asp-for="Name" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" />
@@ -36,7 +40,7 @@
             </div>
         </div>
 
-        <div class="flex flex-col gap-6">
+        <div class="form-panel field-stack">
             <div>
                 <label class="block text-sm font-medium mb-1">Use Raw Lead JSON</label>
                 <div class="flex gap-2">
@@ -47,7 +51,7 @@
                             <option value="@option.Id">@option.Label</option>
                         }
                     </select>
-                    <button id="inject-json-btn" type="button" class="border border-[#d0d0d0] px-3 py-2 rounded text-sm hover:bg-neutral-100">Inject</button>
+                    <button id="inject-json-btn" type="button" class="btn-secondary">Inject</button>
                 </div>
             </div>
 
@@ -58,23 +62,26 @@
             </div>
 
             <div>
-                <p class="text-sm text-neutral-500 mb-2">Injected values preview</p>
-                <div id="injected-preview" class="border border-[#d0d0d0] rounded bg-white p-4 min-h-[220px] overflow-auto"></div>
+                <p class="section-label mb-2">Injected values preview</p>
+                <div id="injected-preview" class="preview-panel min-h-[220px] overflow-auto"></div>
             </div>
 
-            <div class="flex gap-3 flex-wrap">
-                <button type="submit" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">Save Changes</button>
-                <button type="submit" formaction="@Url.Action("PreviewDraft", "DesignTemplate")" formmethod="post" formtarget="_blank" class="border border-[#d0d0d0] text-sm px-4 py-2 rounded hover:bg-neutral-100 transition">Preview Draft</button>
-                <a asp-action="Preview" asp-route-id="@Model.Id" class="border border-[#d0d0d0] text-sm px-4 py-2 rounded hover:bg-neutral-100 transition">Open Saved Preview</a>
+            <div class="action-row">
+                <button type="submit" class="btn-primary">Save Changes</button>
+                <button type="submit" formaction="@Url.Action("PreviewDraft", "DesignTemplate")" formmethod="post" formtarget="_blank" class="btn-secondary">Preview Draft</button>
+                <a asp-action="Preview" asp-route-id="@Model.Id" class="btn-secondary">Open Saved Preview</a>
             </div>
 
             <p class="text-xs text-neutral-500">Preview uses <span class="font-mono">{{key}}</span> and <span class="font-mono">{{parent.child}}</span> placeholders.</p>
         </div>
     </form>
 
-    <section class="mt-8 border-t border-[#d0d0d0] pt-6">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-semibold">Files</h3>
+    <section class="dashboard-panel mt-6">
+        <div class="flex items-center justify-between gap-4 mb-4">
+            <div>
+                <p class="page-kicker">Attachments</p>
+                <h3 class="section-title">Files</h3>
+            </div>
             <input id="attachment-input" type="file" multiple class="hidden" />
         </div>
 

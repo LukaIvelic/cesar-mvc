@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "cesar-local": {
+      "type": "http",
+      "url": "http://localhost:5030/mcp"
+    }
+  }
+}

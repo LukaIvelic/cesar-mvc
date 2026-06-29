@@ -4,15 +4,17 @@
     var columns = new[] { "ID", "Key", "Occurrences", "Tracked Since", "Actions" };
 }
 
-<div class="max-w-4xl mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold">JSON Key Stats</h2>
-        <a asp-action="Create" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">
-            + Add Key
-        </a>
+<div class="page-shell page-shell-medium">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Schema signals</p>
+            <h2 class="page-title">JSON Key Stats</h2>
+            <p class="page-subtitle">Track recurring keys found across raw lead payloads.</p>
+        </div>
+        <a asp-action="Create" class="btn-primary">Add Key</a>
     </div>
 
-    <div class="mb-4">
+    <div class="search-panel">
         <label for="json-key-search" class="block text-sm font-medium mb-1">Search keys</label>
         <input id="json-key-search"
                type="search"
@@ -23,17 +25,19 @@
                data-ajax-target="#json-key-rows" />
     </div>
 
-    <table class="w-full border-collapse">
-        <thead>
-            <tr>
-                @foreach (var col in columns)
-                {
-                    <th class="bg-[#efefef] border border-[#d0d0d0] px-4 py-2 text-left text-sm font-semibold">@col</th>
-                }
-            </tr>
-        </thead>
-        <tbody id="json-key-rows">
-            @await Html.PartialAsync("_Rows", Model)
-        </tbody>
-    </table>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    @foreach (var col in columns)
+                    {
+                        <th>@col</th>
+                    }
+                </tr>
+            </thead>
+            <tbody id="json-key-rows">
+                @await Html.PartialAsync("_Rows", Model)
+            </tbody>
+        </table>
+    </div>
 </div>

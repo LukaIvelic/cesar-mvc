@@ -6,12 +6,23 @@
 @{
     ViewData["Title"] = "Log in";
     var externalProviders = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+    var googleProvider = externalProviders.FirstOrDefault(provider =>
+        string.Equals(provider.Name, "Google", StringComparison.OrdinalIgnoreCase));
+    var otherExternalProviders = externalProviders
+        .Where(provider => !string.Equals(provider.Name, "Google", StringComparison.OrdinalIgnoreCase))
+        .ToList();
 }
 
-<div class="max-w-md mx-auto px-4 py-8">
-    <h2 class="text-2xl font-semibold mb-6">Log in</h2>
+<div class="page-shell page-shell-narrow">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Account</p>
+            <h2 class="page-title">Log in</h2>
+            <p class="page-subtitle">Access protected lead, template, and API management actions.</p>
+        </div>
+    </div>
 
-    <form asp-action="Login" method="post" class="flex flex-col gap-4">
+    <form asp-action="Login" method="post" class="form-panel field-stack">
         <input type="hidden" asp-for="ReturnUrl" />
         <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm"></div>
 
@@ -32,29 +43,55 @@
             Remember me
         </label>
 
-        <button type="submit" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">Log in</button>
+        <button type="submit" class="btn-primary">Log in</button>
     </form>
 
-    @if (externalProviders.Any())
-    {
-        <div class="mt-6 border-t border-[#d0d0d0] pt-6">
-            <p class="text-sm text-neutral-500 mb-3">External login</p>
-            @foreach (var provider in externalProviders)
+    <div class="form-panel mt-6 field-stack">
+        <div>
+            <p class="section-label mb-2">Google Sign-In</p>
+            @if (googleProvider is not null)
             {
-                <form asp-action="ExternalLogin" method="post" class="mb-2">
-                    <input type="hidden" name="provider" value="@provider.Name" />
+                <form asp-action="ExternalLogin" method="post">
+                    <input type="hidden" name="provider" value="@googleProvider.Name" />
                     <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
-                    <button type="submit" class="w-full border border-[#d0d0d0] text-sm px-4 py-2 rounded hover:bg-neutral-100 transition">
-                        Continue with @provider.DisplayName
+                    <button type="submit" class="btn-secondary w-full">
+                        Continue with Google
                     </button>
                 </form>
             }
+            else
+            {
+                <button type="button" class="btn-secondary w-full" disabled>
+                    Google Sign-In not configured
+                </button>
+                <p class="text-xs text-neutral-500 mt-2">
+                    Configure <span class="font-mono">Authentication:Google:ClientId</span> and
+                    <span class="font-mono">Authentication:Google:ClientSecret</span> to enable this button.
+                </p>
+            }
         </div>
-    }
+
+        @if (otherExternalProviders.Any())
+        {
+            <div>
+                <p class="section-label mb-3">Other external login</p>
+                @foreach (var provider in otherExternalProviders)
+                {
+                <form asp-action="ExternalLogin" method="post" class="mb-2">
+                    <input type="hidden" name="provider" value="@provider.Name" />
+                    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                    <button type="submit" class="btn-secondary w-full">
+                        Continue with @provider.DisplayName
+                    </button>
+                </form>
+                }
+            </div>
+            }
+    </div>
 
     <p class="mt-6 text-sm text-neutral-600">
         No account?
-        <a asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl" class="text-blue-600 hover:underline">Register</a>
+        <a asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl" class="link-primary">Register</a>
     </p>
 </div>
 

@@ -4,15 +4,17 @@
     var columns = new[] { "ID", "Source System", "External ID", "Ingested At", "Valid From", "Actions" };
 }
 
-<div class="max-w-6xl mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold">Raw Leads</h2>
-        <a asp-action="Create" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">
-            + Add Lead
-        </a>
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Intake</p>
+            <h2 class="page-title">Raw Leads</h2>
+            <p class="page-subtitle">Source payloads stored as active JSON records for analysis and template previews.</p>
+        </div>
+        <a asp-action="Create" class="btn-primary">Add Lead</a>
     </div>
 
-    <div class="mb-4">
+    <div class="search-panel">
         <label for="raw-lead-search" class="block text-sm font-medium mb-1">Search raw leads</label>
         <input id="raw-lead-search"
                type="search"
@@ -23,17 +25,19 @@
                data-ajax-target="#raw-lead-rows" />
     </div>
 
-    <table class="w-full border-collapse">
-        <thead>
-            <tr>
-                @foreach (var column in columns)
-                {
-                    <th class="bg-[#efefef] border border-[#d0d0d0] px-4 py-2 text-left text-sm font-semibold">@column</th>
-                }
-            </tr>
-        </thead>
-        <tbody id="raw-lead-rows">
-            @await Html.PartialAsync("_Rows", Model)
-        </tbody>
-    </table>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    @foreach (var column in columns)
+                    {
+                        <th>@column</th>
+                    }
+                </tr>
+            </thead>
+            <tbody id="raw-lead-rows">
+                @await Html.PartialAsync("_Rows", Model)
+            </tbody>
+        </table>
+    </div>
 </div>

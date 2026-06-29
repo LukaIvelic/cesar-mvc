@@ -1,70 +1,161 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+    var currentPage = ViewData["CurrentPage"]?.ToString();
+    var title = ViewData["Title"]?.ToString() ?? currentPage ?? "Cesar";
+    var routeLabel = currentController switch
+    {
+        "RawLead" => "Raw Leads",
+        "LeadIntelligence" => "Intelligence",
+        "DesignTemplate" => "Templates",
+        "AiTemplateGenerator" => "AI Generator",
+        "JsonKeyStat" => "JSON Keys",
+        "WeatherForecast" => "Weather Demo",
+        _ => currentController
+    };
+
+    string NavClass(string controller, string? action = null)
+    {
+        var isActive = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+            && (action == null || string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase));
+
+        return isActive ? "sidebar-link is-active" : "sidebar-link";
+    }
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
+    <title>@title</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/cesar.styles.css" asp-append-version="true" />
 </head>
-<body class="bg-white text-neutral-900">
-    <header class="border-b border-[#d0d0d0] mb-6">
-        <nav class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-            <a asp-controller="Home" asp-action="Index" class="text-sm font-semibold truncate max-w-xs">
-                AI Lead Processing
-            </a>
+<body>
+    <div id="nav-backdrop" class="nav-backdrop"></div>
 
-            <ul class="hidden md:flex items-center gap-6 text-sm">
-                <li><a asp-controller="Home" asp-action="Index" class="text-neutral-600 hover:text-black transition">Home</a></li>
-                <li><a asp-controller="WeatherForecast" asp-action="Index" class="text-neutral-600 hover:text-black transition">Weather</a></li>
-                <li><a asp-controller="RawLead" asp-action="Index" class="text-neutral-600 hover:text-black transition">Raw Leads</a></li>
-                <li><a asp-controller="DesignTemplate" asp-action="Index" class="text-neutral-600 hover:text-black transition">Design Templates</a></li>
-                <li><a asp-controller="LeadIntelligence" asp-action="Index" class="text-neutral-600 hover:text-black transition">Intelligence</a></li>
-                <li><a asp-controller="JsonKeyStat" asp-action="Index" class="text-neutral-600 hover:text-black transition">Key Stats</a></li>
-                <li><a asp-controller="Home" asp-action="Privacy" class="text-neutral-600 hover:text-black transition">Privacy</a></li>
-            </ul>
-
-            <div class="hidden md:block">
-                @await Html.PartialAsync("_LoginPartial")
+    <div class="app-frame railway-shell">
+        <aside id="nav-mobile" class="app-sidebar railway-sidebar" aria-label="Primary navigation">
+            <div class="sidebar-header railway-project-card">
+                <a asp-controller="Home" asp-action="Index" class="brand-lockup railway-project-lockup">
+                    <span class="brand-mark railway-project-mark">C</span>
+                    <span class="brand-text railway-project-text">
+                        <span class="brand-title">Cesar</span>
+                        <span class="brand-subtitle">Lead workspace</span>
+                    </span>
+                </a>
+                <span class="railway-status-dot" aria-label="Application status"></span>
             </div>
 
-            <button id="nav-toggle" class="md:hidden text-neutral-600" aria-label="Toggle navigation">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-        </nav>
+            <div class="railway-environment-card">
+                <span>Environment</span>
+                <strong>Production</strong>
+            </div>
 
-        <div id="nav-mobile" class="hidden md:hidden border-t border-[#d0d0d0]">
-            <ul class="flex flex-col px-4 py-3 gap-3 text-sm">
-                <li><a asp-controller="Home" asp-action="Index" class="text-neutral-600 hover:text-black">Home</a></li>
-                <li><a asp-controller="WeatherForecast" asp-action="Index" class="text-neutral-600 hover:text-black">Weather</a></li>
-                <li><a asp-controller="RawLead" asp-action="Index" class="text-neutral-600 hover:text-black">Raw Leads</a></li>
-                <li><a asp-controller="DesignTemplate" asp-action="Index" class="text-neutral-600 hover:text-black">Design Templates</a></li>
-                <li><a asp-controller="LeadIntelligence" asp-action="Index" class="text-neutral-600 hover:text-black">Intelligence</a></li>
-                <li><a asp-controller="JsonKeyStat" asp-action="Index" class="text-neutral-600 hover:text-black">Key Stats</a></li>
-                <li><a asp-controller="Home" asp-action="Privacy" class="text-neutral-600 hover:text-black">Privacy</a></li>
-            </ul>
-            <div class="px-4 pb-3">
+            <nav class="sidebar-nav">
+                <p class="sidebar-label">Build</p>
+                <a asp-controller="Home" asp-action="Index" class="@NavClass("Home", "Index")">
+                    <span class="nav-link-index">01</span>
+                    <span class="sidebar-link-text">Overview</span>
+                </a>
+
+                <p class="sidebar-label">Data</p>
+                <a asp-controller="RawLead" asp-action="Index" class="@NavClass("RawLead")">
+                    <span class="nav-link-index">02</span>
+                    <span class="sidebar-link-text">Raw Leads</span>
+                </a>
+                <a asp-controller="LeadIntelligence" asp-action="Index" class="@NavClass("LeadIntelligence")">
+                    <span class="nav-link-index">03</span>
+                    <span class="sidebar-link-text">Intelligence</span>
+                </a>
+                <a asp-controller="JsonKeyStat" asp-action="Index" class="@NavClass("JsonKeyStat")">
+                    <span class="nav-link-index">04</span>
+                    <span class="sidebar-link-text">JSON Key Stats</span>
+                </a>
+
+                <p class="sidebar-label">Create</p>
+                <a asp-controller="DesignTemplate" asp-action="Index" class="@NavClass("DesignTemplate")">
+                    <span class="nav-link-index">05</span>
+                    <span class="sidebar-link-text">Templates</span>
+                </a>
+                <a asp-controller="AiTemplateGenerator" asp-action="Index" class="@NavClass("AiTemplateGenerator")">
+                    <span class="nav-link-index">06</span>
+                    <span class="sidebar-link-text">AI Generator</span>
+                </a>
+
+                <p class="sidebar-label">System</p>
+                <a asp-controller="WeatherForecast" asp-action="Index" class="@NavClass("WeatherForecast")">
+                    <span class="nav-link-index">07</span>
+                    <span class="sidebar-link-text">Weather Demo</span>
+                </a>
+                <a asp-controller="Home" asp-action="Privacy" class="@NavClass("Home", "Privacy")">
+                    <span class="nav-link-index">08</span>
+                    <span class="sidebar-link-text">Privacy</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
                 @await Html.PartialAsync("_LoginPartial")
             </div>
+        </aside>
+
+        <div class="app-workspace">
+            <header class="app-topbar railway-topbar">
+                <button id="nav-toggle" class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div class="topbar-copy railway-route">
+                    <span class="topbar-eyebrow">Cesar / @routeLabel</span>
+                    <strong>@title</strong>
+                </div>
+                <form action="/search" method="get" class="railway-global-search" role="search">
+                    <input name="q"
+                           type="search"
+                           autocomplete="off"
+                           placeholder="Search pages and data" />
+                </form>
+                <div class="railway-topbar-actions">
+                    <span class="railway-env-pill">
+                        <span></span>
+                        Production
+                    </span>
+                    <a asp-controller="AiTemplateGenerator" asp-action="Index" class="btn-secondary railway-primary-action">New</a>
+                </div>
+            </header>
+
+            <main class="app-main railway-main">
+                @await Html.PartialAsync("_Breadcrumbs")
+                @RenderBody()
+            </main>
         </div>
-    </header>
-
-    <main class="max-w-6xl mx-auto px-4 pb-8">
-        @await Html.PartialAsync("_Breadcrumbs")
-        @RenderBody()
-    </main>
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-        document.getElementById('nav-toggle').addEventListener('click', function () {
+        (function () {
+            var toggle = document.getElementById('nav-toggle');
             var menu = document.getElementById('nav-mobile');
-            menu.classList.toggle('hidden');
-        });
+            var backdrop = document.getElementById('nav-backdrop');
+
+            function setOpen(open) {
+                menu.classList.toggle('is-open', open);
+                backdrop.classList.toggle('is-open', open);
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+
+            toggle.addEventListener('click', function () {
+                setOpen(!menu.classList.contains('is-open'));
+            });
+
+            backdrop.addEventListener('click', function () {
+                setOpen(false);
+            });
+        })();
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -1,12 +1,16 @@
 @model cesar.Features.RawLead.Models.CreateRawLeadModel
 
-<div class="max-w-xl mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold">Add Raw Lead</h2>
-        <a asp-action="Index" class="text-sm text-neutral-500 hover:underline">← Back to list</a>
+<div class="page-shell page-shell-narrow">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Intake</p>
+            <h2 class="page-title">Add Raw Lead</h2>
+            <p class="page-subtitle">Create an active lead record from source-system JSON.</p>
+        </div>
+        <a asp-action="Index" class="back-link">Back to list</a>
     </div>
 
-    <form asp-action="Create" method="post" class="flex flex-col gap-8">
+    <form asp-action="Create" method="post" class="form-panel field-stack">
         <div>
             <label asp-for="SourceSystem" class="block text-sm font-medium mb-1">Source System</label>
             <input asp-for="SourceSystem" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" placeholder="e.g. Salesforce" />
@@ -25,7 +29,7 @@
             <span asp-validation-for="RawJsonData" class="text-red-500 text-xs mt-1 block"></span>
         </div>
 
-        <button type="submit" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition self-start">
+        <button type="submit" class="btn-primary self-start">
             Save Lead
         </button>
     </form>

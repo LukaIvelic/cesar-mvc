@@ -1,14 +1,18 @@
 @model cesar.Features.DesignTemplates.Models.CreateDesignTemplateModel
 @using System.Text.Json
 
-<div class="max-w-6xl mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold">Create Design Template</h2>
-        <a asp-action="Index" class="text-sm text-neutral-500 hover:underline">← Back to list</a>
+<div class="page-shell">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Rendering</p>
+            <h2 class="page-title">Create Design Template</h2>
+            <p class="page-subtitle">Build reusable markup with JSON placeholders and a live injected preview.</p>
+        </div>
+        <a asp-action="Index" class="back-link">Back to list</a>
     </div>
 
-    <form asp-action="Create" method="post" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="flex flex-col gap-6">
+    <form asp-action="Create" method="post" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="form-panel field-stack">
             <div>
                 <label asp-for="Name" class="block text-sm font-medium mb-1">Name</label>
                 <input asp-for="Name" class="w-full border border-[#d0d0d0] rounded px-3 py-2 text-sm focus:outline-none focus:border-black" placeholder="e.g. SaaS_Cold_Email" />
@@ -34,7 +38,7 @@
             </div>
         </div>
 
-        <div class="flex flex-col gap-6">
+        <div class="form-panel field-stack">
             <div>
                 <label class="block text-sm font-medium mb-1">Use Raw Lead JSON</label>
                 <div class="flex gap-2">
@@ -45,7 +49,7 @@
                             <option value="@option.Id">@option.Label</option>
                         }
                     </select>
-                    <button id="inject-json-btn" type="button" class="border border-[#d0d0d0] px-3 py-2 rounded text-sm hover:bg-neutral-100">Inject</button>
+                    <button id="inject-json-btn" type="button" class="btn-secondary">Inject</button>
                 </div>
             </div>
 
@@ -56,13 +60,13 @@
             </div>
 
             <div>
-                <p class="text-sm text-neutral-500 mb-2">Injected values preview</p>
-                <div id="injected-preview" class="border border-[#d0d0d0] rounded bg-white p-4 min-h-[220px] overflow-auto"></div>
+                <p class="section-label mb-2">Injected values preview</p>
+                <div id="injected-preview" class="preview-panel min-h-[220px] overflow-auto"></div>
             </div>
 
-            <div class="flex gap-3">
-                <button type="submit" class="bg-black text-white text-sm px-4 py-2 rounded hover:bg-neutral-800 transition">Save Template</button>
-                <button type="submit" formaction="@Url.Action("PreviewDraft", "DesignTemplate")" formmethod="post" formtarget="_blank" class="border border-[#d0d0d0] text-sm px-4 py-2 rounded hover:bg-neutral-100 transition">Preview Draft</button>
+            <div class="action-row">
+                <button type="submit" class="btn-primary">Save Template</button>
+                <button type="submit" formaction="@Url.Action("PreviewDraft", "DesignTemplate")" formmethod="post" formtarget="_blank" class="btn-secondary">Preview Draft</button>
             </div>
 
             <p class="text-xs text-neutral-500">Preview uses <span class="font-mono">{{key}}</span> and <span class="font-mono">{{parent.child}}</span> placeholders.</p>

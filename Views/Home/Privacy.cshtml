@@ -1,6 +1,38 @@
-﻿@{
+@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="page-shell page-shell-medium">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Policy</p>
+            <h1 class="page-title">Privacy Policy</h1>
+            <p class="page-subtitle">Operational notes for data handled by the lead processing workspace.</p>
+        </div>
+    </div>
+
+    <div class="detail-panel">
+        <div class="field-stack">
+            <section>
+                <h2 class="section-title">Stored data</h2>
+                <p class="text-sm text-neutral-600 mt-2">
+                    The application stores raw lead JSON, derived intelligence scores, template markup, and account records required for authenticated access.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="section-title">Access control</h2>
+                <p class="text-sm text-neutral-600 mt-2">
+                    Write operations are limited by role. Public read endpoints are separated from protected create, update, upload, and delete actions.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="section-title">Attachments</h2>
+                <p class="text-sm text-neutral-600 mt-2">
+                    Design-template attachments are stored as uploaded files with metadata for file name, content type, size, and upload time.
+                </p>
+            </section>
+        </div>
+    </div>
+</div>

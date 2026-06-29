@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using cesar.Data;
 using cesar.Features.Identity;
+using cesar.Features.LeadIntelligence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -56,6 +57,9 @@ public sealed class CesarWebApplicationFactory : WebApplicationFactory<Program>
             services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase(_databaseName));
 
+            services.RemoveAll<ILeadIntelligenceAnalyzer>();
+            services.AddSingleton<ILeadIntelligenceAnalyzer, TestLeadIntelligenceAnalyzer>();
+
             services.AddSingleton(new TestAuthState(_authenticated));
             services
                 .AddAuthentication(options =>
@@ -69,6 +73,18 @@ public sealed class CesarWebApplicationFactory : WebApplicationFactory<Program>
                     _ => { });
         });
     }
+}
+
+public sealed class TestLeadIntelligenceAnalyzer : ILeadIntelligenceAnalyzer
+{
+    public Task<LeadIntelligenceAnalysisResult> AnalyzeAsync(
+        string rawJsonData,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(new LeadIntelligenceAnalysisResult
+        {
+            FamiliarityIndex = 0.81,
+            DataDensityScore = 0.73
+        });
 }
 
 public sealed record TestAuthState(bool Authenticated);

@@ -1,227 +1,120 @@
 @{
-    ViewData["Title"] = "AI Lead Processing";
+    ViewData["Title"] = "Overview";
 }
 
-<style>
-    .hero-gradient {
-        background: linear-gradient(135deg, #166534 0%, #15803d 40%, #16a34a 70%, #22c55e 100%);
-    }
-    .accent-bar {
-        background: linear-gradient(90deg, #16a34a, #86efac, #16a34a);
-    }
-    .pipeline-connector {
-        background: linear-gradient(90deg, #bbf7d0, #16a34a, #bbf7d0);
-    }
-    .card-hover:hover {
-        border-color: #16a34a;
-        box-shadow: 0 0 0 1px #16a34a;
-    }
-    .stat-glow {
-        text-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
-    }
-</style>
-
-
-@* HERO  *@
-<div class="hero-gradient text-white px-8 py-12 mb-8" style="margin-left: -1rem; margin-right: -1rem;">
-    <div class="max-w-6xl mx-auto">
-        <div class="flex items-start justify-between">
+<div class="page-shell">
+    <section class="dashboard-hero">
+        <div class="dashboard-hero-content">
             <div>
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="font-mono text-xs bg-white/10 border border-white/20 px-2 py-0.5">SYSTEM v1.0</span>
-                    <span class="font-mono text-xs text-green-200">● OPERATIONAL</span>
-                </div>
-                <h1 class="text-4xl font-bold tracking-tight mb-2">AI Lead Processing</h1>
-                <p class="text-green-100 text-lg font-light max-w-xl">
-                    Ingest raw lead data from any source, extract structured intelligence,
-                    and render it into business-ready formats using AI-driven mapping pipelines.
+                <p class="page-kicker">Overview</p>
+                <h1 class="hero-title">Lead processing workspace</h1>
+                <p class="hero-copy">
+                    Review incoming lead payloads, track recurring JSON fields, manage analysis records, and preview output templates.
                 </p>
             </div>
-            <div class="hidden lg:block text-right font-mono text-xs text-green-300 space-y-1">
-                <div>pipeline.status = <span class="text-white">active</span></div>
-                <div>ai.model = <span class="text-white">gpt-4o</span></div>
-                <div>output.formats = <span class="text-white">3</span></div>
-                <div>leads.processed = <span class="text-white">∞</span></div>
+
+            <div class="hero-metrics">
+                <a asp-controller="RawLead" asp-action="Index" class="hero-metric">
+                    <span>Input data</span>
+                    <strong>Raw leads</strong>
+                </a>
+                <a asp-controller="JsonKeyStat" asp-action="Index" class="hero-metric">
+                    <span>Schema tracking</span>
+                    <strong>JSON keys</strong>
+                </a>
+                <a asp-controller="LeadIntelligence" asp-action="Index" class="hero-metric">
+                    <span>Analysis</span>
+                    <strong>Lead intelligence</strong>
+                </a>
+                <a asp-controller="DesignTemplate" asp-action="Index" class="hero-metric">
+                    <span>Output</span>
+                    <strong>Templates</strong>
+                </a>
             </div>
         </div>
+    </section>
+
+    <div class="dashboard-grid">
+        <section class="dashboard-panel span-8">
+            <div class="section-heading">
+                <div>
+                    <p class="page-kicker">Workflow</p>
+                    <h2 class="section-title">How records move through the app</h2>
+                </div>
+            </div>
+
+            <div class="pipeline-list">
+                <a asp-controller="RawLead" asp-action="Index" class="pipeline-step">
+                    <span class="pipeline-step-index">1</span>
+                    <strong>Store raw payloads</strong>
+                    <span>Keep source-system JSON records available for review and search.</span>
+                </a>
+                <a asp-controller="JsonKeyStat" asp-action="Index" class="pipeline-step">
+                    <span class="pipeline-step-index">2</span>
+                    <strong>Track useful fields</strong>
+                    <span>Record recurring keys that can become template placeholders.</span>
+                </a>
+                <a asp-controller="LeadIntelligence" asp-action="Index" class="pipeline-step">
+                    <span class="pipeline-step-index">3</span>
+                    <strong>Review scores</strong>
+                    <span>Compare content hashes, familiarity, and density values.</span>
+                </a>
+                <a asp-controller="DesignTemplate" asp-action="Index" class="pipeline-step">
+                    <span class="pipeline-step-index">4</span>
+                    <strong>Render output</strong>
+                    <span>Preview templates against saved lead JSON before using them.</span>
+                </a>
+            </div>
+        </section>
+
+        <aside class="dashboard-panel span-4">
+            <p class="page-kicker">Create</p>
+            <h2 class="section-title mb-4">Common actions</h2>
+            <div class="quick-link-list">
+                <a asp-controller="RawLead" asp-action="Create" class="quick-link">
+                    <span>Add raw lead</span>
+                    <span>Create</span>
+                </a>
+                <a asp-controller="LeadIntelligence" asp-action="Create" class="quick-link">
+                    <span>Add intelligence record</span>
+                    <span>Create</span>
+                </a>
+                <a asp-controller="DesignTemplate" asp-action="Create" class="quick-link">
+                    <span>Create template</span>
+                    <span>Create</span>
+                </a>
+                <a asp-controller="JsonKeyStat" asp-action="Create" class="quick-link">
+                    <span>Track JSON key</span>
+                    <span>Create</span>
+                </a>
+            </div>
+        </aside>
+
+        <section class="dashboard-panel span-12">
+            <div class="section-heading">
+                <div>
+                    <p class="page-kicker">Sections</p>
+                    <h2 class="section-title">Main areas</h2>
+                </div>
+            </div>
+
+            <div class="use-case-grid">
+                <a asp-controller="RawLead" asp-action="Index" class="use-case">
+                    <span class="section-label">Raw leads</span>
+                    <strong>Search source records</strong>
+                    <p>Find payloads by source, external ID, timestamp, or JSON content.</p>
+                </a>
+                <a asp-controller="DesignTemplate" asp-action="Index" class="use-case">
+                    <span class="section-label">Templates</span>
+                    <strong>Manage rendered output</strong>
+                    <p>Edit markup, placeholder schemas, previews, and attachments.</p>
+                </a>
+                <a asp-controller="LeadIntelligence" asp-action="Index" class="use-case">
+                    <span class="section-label">Intelligence</span>
+                    <strong>Review analysis data</strong>
+                    <p>Check density, familiarity, and content hashes linked to leads.</p>
+                </a>
+            </div>
+        </section>
     </div>
-</div>
-
-
-@* PIPELINE FLOW  *@
-<div class="mb-10">
-    <div class="flex items-center gap-2 mb-4">
-        <span class="font-mono text-xs text-neutral-400 uppercase tracking-widest">Processing Pipeline</span>
-        <div class="flex-1 h-px bg-[#d0d0d0]"></div>
-    </div>
-
-    <div class="grid grid-cols-4 gap-0 relative">
-        
-@* Step 1  *@
-        <div class="border border-[#d0d0d0] bg-white p-4 relative">
-            <div class="w-1 h-full absolute left-0 top-0" style="background: linear-gradient(180deg, #16a34a, #86efac);"></div>
-            <div class="font-mono text-xs text-neutral-400 mb-1">01 / INGEST</div>
-            <div class="font-semibold text-sm mb-1">Raw Lead</div>
-            <p class="text-xs text-neutral-500">Capture unstructured lead data from CRMs, forms, APIs, or manual entry. Stored verbatim as JSON.</p>
-            <div class="mt-3">
-                <a asp-controller="RawLead" asp-action="Index" class="font-mono text-xs text-green-700 hover:text-green-900">view leads →</a>
-            </div>
-        </div>
-
-        
-@* Arrow  *@
-        <div class="flex items-center justify-center border-t border-b border-[#d0d0d0] bg-[#fafafa] relative">
-            <div class="absolute inset-x-0 h-px top-1/2" style="background: linear-gradient(90deg, #16a34a 0%, #86efac 50%, #16a34a 100%);"></div>
-            <div class="relative z-10 bg-[#fafafa] px-2">
-                <span class="font-mono text-xs text-neutral-400">02 / ANALYZE</span>
-            </div>
-            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex items-center justify-center">
-            </div>
-        </div>
-
-        
-@* Step 2  *@
-        <div class="border border-[#d0d0d0] bg-white p-4 relative -ml-px">
-            <div class="w-1 h-full absolute left-0 top-0" style="background: linear-gradient(180deg, #86efac, #16a34a);"></div>
-            <div class="font-mono text-xs text-neutral-400 mb-1">03 / ENRICH</div>
-            <div class="font-semibold text-sm mb-1">AI Intelligence</div>
-            <p class="text-xs text-neutral-500">AI extracts familiarity index, data density score, and content hash. Repeated leads are identified automatically.</p>
-            <div class="mt-3">
-                <a asp-controller="LeadIntelligence" asp-action="Index" class="font-mono text-xs text-green-700 hover:text-green-900">view intelligence →</a>
-            </div>
-        </div>
-
-        
-@* Step 3  *@
-        <div class="border border-[#d0d0d0] bg-white p-4 relative -ml-px">
-            <div class="w-1 h-full absolute left-0 top-0" style="background: linear-gradient(180deg, #16a34a, #166534);"></div>
-            <div class="font-mono text-xs text-neutral-400 mb-1">04 / RENDER</div>
-            <div class="font-semibold text-sm mb-1">Design Template</div>
-            <p class="text-xs text-neutral-500">Map enriched data into business formats: email campaigns, CRM records, marketing briefs — via HTML templates with dynamic placeholders.</p>
-            <div class="mt-3">
-                <a asp-controller="DesignTemplate" asp-action="Index" class="font-mono text-xs text-green-700 hover:text-green-900">view templates →</a>
-            </div>
-        </div>
-    </div>
-
-    
-@* Bottom accent bar  *@
-    <div class="h-0.5 accent-bar"></div>
-</div>
-
-
-@* TWO COLUMN: PURPOSE + QUICK ACCESS  *@
-<div class="grid grid-cols-3 gap-6 mb-10">
-
-    
-@* Purpose block  *@
-    <div class="col-span-2 border border-[#d0d0d0] bg-white p-6">
-        <div class="flex items-center gap-2 mb-4">
-            <div class="w-2 h-2 bg-green-500"></div>
-            <span class="font-mono text-xs text-neutral-400 uppercase tracking-widest">About this system</span>
-        </div>
-        <p class="text-sm text-neutral-700 leading-relaxed mb-3">
-            This platform automates the full lifecycle of B2B and B2C lead processing. Raw contact records
-            arrive from disparate sources — scraped web data, exported CRM dumps, form submissions — and pass
-            through a normalization and AI enrichment layer before being rendered into output-ready formats.
-        </p>
-        <p class="text-sm text-neutral-700 leading-relaxed mb-4">
-            The AI layer scores each lead for data completeness and recurrence likelihood, enabling sales teams
-            to prioritize high-value contacts and marketing teams to generate personalized outreach assets
-            at scale without manual reformatting.
-        </p>
-        <div class="border-t border-[#d0d0d0] pt-4 grid grid-cols-3 gap-4">
-            <div>
-                <div class="font-mono text-xs text-neutral-400 mb-1">INPUT</div>
-                <div class="text-sm font-medium">Any JSON source</div>
-            </div>
-            <div>
-                <div class="font-mono text-xs text-neutral-400 mb-1">PROCESSING</div>
-                <div class="text-sm font-medium">AI scoring + dedup</div>
-            </div>
-            <div>
-                <div class="font-mono text-xs text-neutral-400 mb-1">OUTPUT</div>
-                <div class="text-sm font-medium">HTML / CRM / Brief</div>
-            </div>
-        </div>
-    </div>
-
-    
-@* Quick access  *@
-    <div class="border border-[#d0d0d0] bg-white p-6">
-        <div class="flex items-center gap-2 mb-4">
-            <div class="w-2 h-2 bg-green-500"></div>
-            <span class="font-mono text-xs text-neutral-400 uppercase tracking-widest">Quick access</span>
-        </div>
-        <div class="space-y-1">
-            <a asp-controller="RawLead" asp-action="Index"
-               class="card-hover flex items-center justify-between px-3 py-2.5 border border-[#e0e0e0] text-sm transition group">
-                <span class="font-medium">Raw Leads</span>
-                <span class="font-mono text-xs text-neutral-400 group-hover:text-green-600">→</span>
-            </a>
-            <a asp-controller="LeadIntelligence" asp-action="Index"
-               class="card-hover flex items-center justify-between px-3 py-2.5 border border-[#e0e0e0] text-sm transition group">
-                <span class="font-medium">AI Intelligence</span>
-                <span class="font-mono text-xs text-neutral-400 group-hover:text-green-600">→</span>
-            </a>
-            <a asp-controller="DesignTemplate" asp-action="Index"
-               class="card-hover flex items-center justify-between px-3 py-2.5 border border-[#e0e0e0] text-sm transition group">
-                <span class="font-medium">Design Templates</span>
-                <span class="font-mono text-xs text-neutral-400 group-hover:text-green-600">→</span>
-            </a>
-            <a asp-controller="JsonKeyStat" asp-action="Index"
-               class="card-hover flex items-center justify-between px-3 py-2.5 border border-[#e0e0e0] text-sm transition group">
-                <span class="font-medium">JSON Key Stats</span>
-                <span class="font-mono text-xs text-neutral-400 group-hover:text-green-600">→</span>
-            </a>
-            <a asp-controller="WeatherForecast" asp-action="Index"
-               class="card-hover flex items-center justify-between px-3 py-2.5 border border-[#e0e0e0] text-sm transition group">
-                <span class="font-medium">Weather Demo</span>
-                <span class="font-mono text-xs text-neutral-400 group-hover:text-green-600">→</span>
-            </a>
-        </div>
-    </div>
-</div>
-
-
-@* USE CASES  *@
-<div class="mb-6">
-    <div class="flex items-center gap-2 mb-4">
-        <span class="font-mono text-xs text-neutral-400 uppercase tracking-widest">Use Cases</span>
-        <div class="flex-1 h-px bg-[#d0d0d0]"></div>
-    </div>
-
-    <div class="grid grid-cols-3 gap-4">
-        <div class="border border-[#d0d0d0] bg-white p-4">
-            <div class="w-full h-0.5 mb-4" style="background: linear-gradient(90deg, #16a34a, #86efac);"></div>
-            <div class="font-semibold text-sm mb-2">Sales Outreach</div>
-            <p class="text-xs text-neutral-500 leading-relaxed">
-                Feed raw prospect data into the pipeline and auto-generate personalized outreach emails
-                from HTML templates pre-filled with AI-extracted contact details.
-            </p>
-        </div>
-        <div class="border border-[#d0d0d0] bg-white p-4">
-            <div class="w-full h-0.5 mb-4" style="background: linear-gradient(90deg, #15803d, #22c55e);"></div>
-            <div class="font-semibold text-sm mb-2">CRM Enrichment</div>
-            <p class="text-xs text-neutral-500 leading-relaxed">
-                Normalize inconsistent lead formats from multiple sources into a unified schema.
-                Score data density to flag incomplete records before they pollute downstream CRM systems.
-            </p>
-        </div>
-        <div class="border border-[#d0d0d0] bg-white p-4">
-            <div class="w-full h-0.5 mb-4" style="background: linear-gradient(90deg, #166534, #16a34a);"></div>
-            <div class="font-semibold text-sm mb-2">Marketing Briefs</div>
-            <p class="text-xs text-neutral-500 leading-relaxed">
-                Map lead intelligence scores to segment tags and render audience profiles
-                into structured marketing briefs ready for campaign managers to act on.
-            </p>
-        </div>
-    </div>
-</div>
-
-
-@* FOOTER NOTE  *@
-<div class="border-t border-[#d0d0d0] pt-4 flex items-center justify-between">
-    <span class="font-mono text-xs text-neutral-400">AI Lead Processing System — internal tooling</span>
-    <span class="font-mono text-xs text-neutral-300">build 2026.04</span>
 </div>

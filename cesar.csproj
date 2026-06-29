@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4" />
   </ItemGroup>
 
-  <Target Name="BuildTailwind" BeforeTargets="Build">
+  <Target Name="BuildTailwind" BeforeTargets="Build" Condition="'$(SkipBuildTailwind)' != 'true'">
     <Exec Command="npm run build:css" />
   </Target>
 

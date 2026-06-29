@@ -3,7 +3,7 @@
 @if (!Model.Any())
 {
     <tr>
-        <td colspan="6" class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-4 text-sm text-neutral-500">No raw leads found.</td>
+        <td colspan="6" class="empty-cell">No raw leads found.</td>
     </tr>
 }
 else
@@ -11,17 +11,17 @@ else
     @foreach (var lead in Model)
     {
         <tr>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@lead.Id</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@lead.SourceSystem</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm font-mono">@lead.ExternalId</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@lead.IngestedAt.ToString("yyyy-MM-dd HH:mm")</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">@lead.ValidFrom.ToString("yyyy-MM-dd HH:mm")</td>
-            <td class="bg-[#fafafa] border border-[#d0d0d0] px-4 py-2 text-sm">
-                <div class="flex gap-3">
-                    <a asp-action="Detail" asp-route-id="@lead.Id" class="text-blue-600 hover:underline">View JSON</a>
-                    <a asp-action="Edit" asp-route-id="@lead.Id" class="text-neutral-600 hover:underline">Edit</a>
+            <td>@lead.Id</td>
+            <td>@lead.SourceSystem</td>
+            <td class="font-mono">@lead.ExternalId</td>
+            <td>@lead.IngestedAt.ToString("yyyy-MM-dd HH:mm")</td>
+            <td>@lead.ValidFrom.ToString("yyyy-MM-dd HH:mm")</td>
+            <td>
+                <div class="action-row">
+                    <a asp-action="Detail" asp-route-id="@lead.Id" class="link-primary">View JSON</a>
+                    <a asp-action="Edit" asp-route-id="@lead.Id" class="link-muted">Edit</a>
                     <form asp-action="Delete" asp-route-id="@lead.Id" method="post" onsubmit="return confirm('Soft delete this lead?')">
-                        <button type="submit" class="text-red-500 hover:underline">Delete</button>
+                        <button type="submit" class="link-danger">Delete</button>
                     </form>
                 </div>
             </td>

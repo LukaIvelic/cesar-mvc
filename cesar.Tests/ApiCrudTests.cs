@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using cesar.Features.DesignTemplates.Entities;
 using cesar.Features.DesignTemplates.Models;
 using cesar.Features.JsonKeyStats.Models;
@@ -344,6 +345,121 @@ public class ApiCrudTests
         Assert.Contains("AI Template Generator", html);
     }
 
+    [Fact]
+    public async Task LoginPage_ShowsGoogleSignInArea()
+    {
+        using var factory = new CesarWebApplicationFactory(authenticated: false);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        var response = await client.GetAsync("/Account/Login");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Google Sign-In", html);
+    }
+
+    [Fact]
+    public async Task SecondaryApiRoutes_CoverAutocompleteBulkTrackingHashAnalyzeSearchAndMcp()
+    {
+        using var factory = new CesarWebApplicationFactory();
+        using var client = factory.CreateClient();
+
+        var bulkResponse = await client.PostAsJsonAsync("/api/rawleads/bulk", new[]
+        {
+            new
+            {
+                sourceSystem = "web_form",
+                externalId = "BULK-LEAD-1",
+                rawJsonData = """{"fullName":"Bulk Lead","company":"Cesar Labs","score":88}"""
+            },
+            new
+            {
+                sourceSystem = "crm_sync",
+                externalId = "BULK-LEAD-2",
+                rawJsonData = """{"fullName":"Second Lead","company":"Rail Test","score":72}"""
+            }
+        });
+        Assert.Equal(HttpStatusCode.Created, bulkResponse.StatusCode);
+
+        var lead = await CreateRawLeadAsync(client);
+
+        var autocomplete = await client.GetAsync("/api/rawleads/autocomplete?term=LEAD");
+        Assert.Equal(HttpStatusCode.OK, autocomplete.StatusCode);
+        var autocompleteJson = await ReadDocumentAsync(autocomplete);
+        Assert.True(autocompleteJson.RootElement.GetArrayLength() > 0);
+
+        var trackResponse = await client.PostAsJsonAsync("/api/jsonkeystats/track", new[] { "company", "score" });
+        Assert.Equal(HttpStatusCode.OK, trackResponse.StatusCode);
+
+        var incrementResponse = await client.PostAsync("/api/jsonkeystats/increment/company", null);
+        Assert.Equal(HttpStatusCode.OK, incrementResponse.StatusCode);
+
+        var keyResponse = await client.GetAsync("/api/jsonkeystats/key/company");
+        Assert.Equal(HttpStatusCode.OK, keyResponse.StatusCode);
+        var keyStat = await ReadJsonAsync<JsonKeyStatDto>(keyResponse);
+        Assert.Equal("company", keyStat.Key);
+
+        var hashResponse = await client.PostAsJsonAsync("/api/leadintelligence/compute-hash", "hash-me");
+        Assert.Equal(HttpStatusCode.OK, hashResponse.StatusCode);
+        var hashJson = await ReadDocumentAsync(hashResponse);
+        Assert.Equal(64, hashJson.RootElement.GetProperty("hash").GetString()!.Length);
+
+        var analyzeResponse = await client.PostAsync($"/api/leadintelligence/analyze/{lead.Id}", null);
+        Assert.Equal(HttpStatusCode.OK, analyzeResponse.StatusCode);
+        var analyzed = await ReadJsonAsync<LeadIntelligenceDto>(analyzeResponse);
+        Assert.Equal(lead.Id, analyzed.LeadId);
+        Assert.Equal(0.81, analyzed.FamiliarityIndex);
+
+        var byHashResponse = await client.GetAsync($"/api/leadintelligence/hash/{analyzed.ContentHash}");
+        Assert.Equal(HttpStatusCode.OK, byHashResponse.StatusCode);
+
+        var globalSearchResponse = await client.GetAsync("/api/search?q=Lead");
+        Assert.Equal(HttpStatusCode.OK, globalSearchResponse.StatusCode);
+        var globalSearchJson = await ReadDocumentAsync(globalSearchResponse);
+        Assert.True(globalSearchJson.RootElement.GetProperty("results").GetArrayLength() > 0);
+
+        var searchPageResponse = await client.GetAsync("/search?q=Lead");
+        Assert.Equal(HttpStatusCode.OK, searchPageResponse.StatusCode);
+        var searchHtml = await searchPageResponse.Content.ReadAsStringAsync();
+        Assert.Contains("Global Search", searchHtml);
+
+        var mcpDescription = await client.GetAsync("/mcp");
+        Assert.Equal(HttpStatusCode.OK, mcpDescription.StatusCode);
+
+        var mcpListResponse = await client.PostAsJsonAsync("/mcp", new
+        {
+            jsonrpc = "2.0",
+            id = 1,
+            method = "tools/list"
+        });
+        Assert.Equal(HttpStatusCode.OK, mcpListResponse.StatusCode);
+        var mcpListJson = await ReadDocumentAsync(mcpListResponse);
+        Assert.True(mcpListJson.RootElement.GetProperty("result").GetProperty("tools").GetArrayLength() >= 3);
+
+        var mcpCallResponse = await client.PostAsJsonAsync("/mcp", new
+        {
+            jsonrpc = "2.0",
+            id = 2,
+            method = "tools/call",
+            @params = new
+            {
+                name = "global_search",
+                arguments = new { query = "Lead" }
+            }
+        });
+        Assert.Equal(HttpStatusCode.OK, mcpCallResponse.StatusCode);
+        var mcpCallJson = await ReadDocumentAsync(mcpCallResponse);
+        var toolText = mcpCallJson.RootElement
+            .GetProperty("result")
+            .GetProperty("content")[0]
+            .GetProperty("text")
+            .GetString();
+        Assert.Contains("Lead", toolText);
+    }
+
     private static async Task<RawLeadDto> CreateRawLeadAsync(HttpClient client)
     {
         var response = await client.PostAsJsonAsync("/api/rawleads", new
@@ -362,5 +478,11 @@ public class ApiCrudTests
         var value = await response.Content.ReadFromJsonAsync<T>();
         Assert.NotNull(value);
         return value;
+    }
+
+    private static async Task<JsonDocument> ReadDocumentAsync(HttpResponseMessage response)
+    {
+        var stream = await response.Content.ReadAsStreamAsync();
+        return await JsonDocument.ParseAsync(stream);
     }
 }
